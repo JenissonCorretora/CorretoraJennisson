@@ -1,5 +1,5 @@
 // Importar variáveis globais
-@import '../../../styles/variables';
+@use '../../../styles/variables' as *;
 
 .navbar {
   position: fixed;
@@ -144,7 +144,7 @@
           color: white;
 
           &:hover {
-            background-color: darken($secondary-color, 10%);
+            background-color: $active-color;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
           }

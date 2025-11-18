@@ -1,5 +1,5 @@
 // Importar variáveis globais
-@import '../styles/variables';
+@use '../styles/variables' as *;
 
 .main-content {
   margin-top: $navbar-height;

@@ -77,17 +77,47 @@
 <!-- Valores -->
 <section class="valores">
   <div class="container">
-    <h2 class="section-title">Nossos Valores</h2>
-    <p class="section-subtitle">
-      Princípios que guiam cada atendimento e negociação
-    </p>
+    <div class="valores-header-section">
+      <h2 class="section-title">Valores que Nos Guiam</h2>
+      <p class="section-subtitle">
+        Descubra os princípios que fazem a diferença em cada atendimento
+      </p>
+    </div>
 
-    <div class="valores-grid">
-      <div *ngFor="let valor of valores"
-           class="valor-card">
-        <span class="material-icons">{{ valor.icon }}</span>
-        <h3>{{ valor.title }}</h3>
-        <p>{{ valor.description }}</p>
+    <div class="valores-container">
+      <div *ngFor="let valor of valores; let i = index"
+           class="valor-item"
+           [class.ativo]="valorSelecionado === i"
+           (click)="selecionarValor(i)"
+           [attr.aria-expanded]="valorSelecionado === i"
+           role="button"
+           tabindex="0"
+           (keydown.enter)="selecionarValor(i)"
+           (keydown.space)="selecionarValor(i); $event.preventDefault()">
+
+        <div class="valor-trigger">
+          <div class="valor-numero" [style.background]="valor.color">
+            {{ i + 1 }}
+          </div>
+          <div class="valor-info">
+            <h3 class="valor-titulo">{{ valor.title }}</h3>
+            <p class="valor-resumo">{{ valor.description }}</p>
+          </div>
+          <div class="valor-toggle">
+            <span class="material-icons">
+              {{ valorSelecionado === i ? 'remove' : 'add' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="valor-conteudo" *ngIf="valorSelecionado === i" [@expandCollapse]>
+          <div class="conteudo-inner">
+            <div class="conteudo-icon">
+              <span class="material-icons" [style.color]="valor.color">{{ valor.icon }}</span>
+            </div>
+            <p class="conteudo-texto">{{ valor.detalhes }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
