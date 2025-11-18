@@ -19,27 +19,27 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () => import('./layout/login').then(m => m.Login)
+    loadComponent: () => import('./layout/login/login').then(m => m.Login)
   },
   {
     path: 'register',
-    loadComponent: () => import('./layout/register').then(m => m.Register)
+    loadComponent: () => import('./layout/register/register').then(m => m.Register)
   },
   {
     path: 'forgot-password',
-    loadComponent: () => import('./layout/forgot-password').then(m => m.ForgotPassword)
+    loadComponent: () => import('./layout/forgot-password/forgot-password').then(m => m.ForgotPassword)
   },
   {
     path: 'terms',
-    loadComponent: () => import('./layout/terms').then(m => m.Terms)
+    loadComponent: () => import('./layout/terms/terms').then(m => m.Terms)
   },
   {
     path: 'privacy',
-    loadComponent: () => import('./layout/privacy').then(m => m.Privacy)
+    loadComponent: () => import('./layout/privacy/privacy').then(m => m.Privacy)
   },
   {
     path: 'admin/register',
-    loadComponent: () => import('./layout/admin-register').then(m => m.AdminRegister)
+    loadComponent: () => import('./layout/admin-register/admin-register').then(m => m.AdminRegister)
   },
   {
     path: '**',
