@@ -1,0 +1,144 @@
+<section class="hero-sobre">
+  <div class="container">
+    <div class="hero-content">
+      <div class="corretor-image">
+        <img [src]="corretor.foto"
+             alt="Corretor Jenisson Luckwü"
+             [title]="corretor.nome" />
+        <div class="badge-creci">
+          <span class="material-icons">verified</span>
+          {{ corretor.creci }}
+        </div>
+      </div>
+
+      <div class="corretor-info">
+        <h1 class="corretor-nome">{{ corretor.nome }}</h1>
+        <p class="corretor-cargo">{{ corretor.cargo }}</p>
+
+        <div class="apresentacao">
+          <p class="intro">
+            Olá! Muito prazer em conhecê-lo. Sou seu parceiro ideal para realizar seus sonhos e objetivos no mercado imobiliário.
+          </p>
+
+          <p>
+            Com mais de <strong>{{ corretor.portfolioAtivo }} imóveis</strong> em gestão ativa, tenho orgulho de oferecer uma experiência completa em vendas, locações e consultoria imobiliária especializada.
+          </p>
+
+          <p>
+            <strong class="destaque-titulo">Você é Proprietário?</strong>
+            Conheço profundamente o mercado e posso assegurar a máxima rentabilidade e segurança na administração do seu patrimônio. Seu imóvel estará em mãos experientes e comprometidas.
+          </p>
+
+          <p>
+            <strong class="destaque-titulo">Procura um Imóvel?</strong>
+            Você terá acesso a um portfólio diversificado de oportunidades e uma consultoria especializada para encontrar a propriedade ideal. Seja para morar, investir ou realizar seu sonho, estou aqui para te orientar na melhor escolha.
+          </p>
+
+          <p class="texto-destaque">
+            Meu foco é no seu resultado e na sua tranquilidade. Cada cliente é único, e por isso ofereço um atendimento personalizado, transparente e comprometido com seus objetivos.
+          </p>
+
+          <div class="cta-contato">
+            <h3>Como posso usar essa experiência para te ajudar hoje?</h3>
+            <a routerLink="/contato"
+               class="btn btn-primary">
+              <span class="material-icons">phone</span>
+              Entre em Contato
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Estatísticas -->
+<section class="estatisticas">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="material-icons">home_work</span>
+        <h3>{{ corretor.portfolioAtivo }}</h3>
+        <p>Imóveis em Gestão</p>
+      </div>
+
+      <div class="stat-card">
+        <span class="material-icons">workspace_premium</span>
+        <h3>{{ corretor.anosExperiencia }}</h3>
+        <p>Anos de Experiência</p>
+      </div>
+
+      <div class="stat-card">
+        <span class="material-icons">groups</span>
+        <h3>{{ corretor.clientesSatisfeitos }}</h3>
+        <p>Clientes Satisfeitos</p>
+      </div>
+
+      <div class="stat-card">
+        <span class="material-icons">sell</span>
+        <h3>{{ corretor.imoveisVendidos }}</h3>
+        <p>Imóveis Vendidos</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Diferenciais -->
+<section class="diferenciais">
+  <div class="container">
+    <h2 class="section-title">Por Que Escolher Meus Serviços?</h2>
+    <p class="section-subtitle">
+      Conheça os diferenciais que fazem a diferença na sua experiência imobiliária
+    </p>
+
+    <div class="diferenciais-grid">
+      <div *ngFor="let diferencial of diferenciais"
+           class="diferencial-card">
+        <div class="diferencial-icon">
+          <span class="material-icons">{{ diferencial.icon }}</span>
+        </div>
+        <h3>{{ diferencial.title }}</h3>
+        <p>{{ diferencial.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Valores -->
+<section class="valores">
+  <div class="container">
+    <h2 class="section-title">Nossos Valores</h2>
+    <p class="section-subtitle">
+      Princípios que guiam cada atendimento e negociação
+    </p>
+
+    <div class="valores-grid">
+      <div *ngFor="let valor of valores"
+           class="valor-card">
+        <span class="material-icons">{{ valor.icon }}</span>
+        <h3>{{ valor.title }}</h3>
+        <p>{{ valor.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Final -->
+<section class="cta-final">
+  <div class="container">
+    <h2>Pronto para Encontrar seu Imóvel Ideal?</h2>
+    <p>Vamos conversar sobre suas necessidades e encontrar a melhor solução para você.</p>
+    <div class="cta-buttons">
+      <a routerLink="/imoveis"
+         class="btn btn-outline">
+        <span class="material-icons">search</span>
+        Ver Imóveis
+      </a>
+      <a routerLink="/contato"
+         class="btn btn-primary">
+        <span class="material-icons">chat</span>
+        Falar com o Corretor
+      </a>
+    </div>
+  </div>
+</section>

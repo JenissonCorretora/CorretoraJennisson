@@ -1,0 +1,213 @@
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 class="hero-title">Encontre o Imóvel dos Seus Sonhos</h1>
+    <p class="hero-subtitle">Os melhores imóveis de João Pessoa estão aqui</p>
+
+    <!-- Search Form -->
+    <form class="search-form" (submit)="searchProperties($event)">
+      <div class="search-inputs">
+        <div class="search-field">
+          <span class="material-icons">location_on</span>
+          <input type="text" placeholder="Localização" />
+        </div>
+
+        <div class="search-field">
+          <span class="material-icons">home</span>
+          <select aria-label="Selecione o tipo de imóvel" title="Selecione o tipo de imóvel">
+            <option>Tipo de Imóvel</option>
+            <option>Casa</option>
+            <option>Apartamento</option>
+            <option>Terreno</option>
+            <option>Comercial</option>
+          </select>
+        </div>
+
+        <div class="search-field">
+          <span class="material-icons">attach_money</span>
+          <input type="text" placeholder="Faixa de Preço" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          <span class="material-icons">search</span>
+          Buscar
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Featured Rentals - Imóveis em Destaque -->
+<section class="featured-rentals">
+  <div class="container">
+    <h2 class="section-title">Imóveis em Destaque</h2>
+
+    <div class="property-grid">
+      <!-- Card 1 - Placeholder -->
+      <div class="property-card placeholder">
+        <div class="property-image">
+          <span class="material-icons">add_photo_alternate</span>
+          <p>Aguardando imóvel do administrador</p>
+        </div>
+        <div class="property-info">
+          <h3>Imóvel em Breve</h3>
+          <p class="property-location">
+            <span class="material-icons">location_on</span>
+            João Pessoa - PB
+          </p>
+          <p class="property-description">
+            Em breve novos imóveis serão adicionados pelo administrador.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 2 - Placeholder -->
+      <div class="property-card placeholder">
+        <div class="property-image">
+          <span class="material-icons">add_photo_alternate</span>
+          <p>Aguardando imóvel do administrador</p>
+        </div>
+        <div class="property-info">
+          <h3>Imóvel em Breve</h3>
+          <p class="property-location">
+            <span class="material-icons">location_on</span>
+            João Pessoa - PB
+          </p>
+          <p class="property-description">
+            Em breve novos imóveis serão adicionados pelo administrador.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 3 - Placeholder -->
+      <div class="property-card placeholder">
+        <div class="property-image">
+          <span class="material-icons">add_photo_alternate</span>
+          <p>Aguardando imóvel do administrador</p>
+        </div>
+        <div class="property-info">
+          <h3>Imóvel em Breve</h3>
+          <p class="property-location">
+            <span class="material-icons">location_on</span>
+            João Pessoa - PB
+          </p>
+          <p class="property-description">
+            Em breve novos imóveis serão adicionados pelo administrador.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-all">
+      <a routerLink="/imoveis" class="btn btn-outline">
+        Ver Todos os Imóveis
+        <span class="material-icons">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Services/Categories Section -->
+<section class="services">
+  <div class="container">
+    <h2 class="section-title">Encontre por Categoria</h2>
+
+    <div class="services-grid">
+      <div *ngFor="let service of services"
+           class="service-card"
+           (click)="filterByCategory(service.title)">
+        <div class="service-icon">
+          <span class="material-icons">{{ service.icon }}</span>
+        </div>
+        <h3>{{ service.title }}</h3>
+        <p>{{ service.description }}</p>
+        <span class="service-count">{{ service.count }}+ imóveis</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Customer Testimonials -->
+<section class="testimonials">
+  <div class="container">
+    <h2 class="section-title">O Que Dizem Nossos Clientes</h2>
+
+    <div class="testimonials-grid">
+      <div *ngFor="let testimonial of testimonials" class="testimonial-card">
+        <div class="testimonial-content">
+          <span class="quote-icon material-icons">format_quote</span>
+          <p class="testimonial-text">{{ testimonial.text }}</p>
+        </div>
+        <div class="testimonial-author">
+          <img [src]="testimonial.image"
+               alt="Cliente"
+               [title]="testimonial.name"
+               class="author-image" />
+          <div class="author-info">
+            <h4>{{ testimonial.name }}</h4>
+            <p>{{ testimonial.role }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Quick Links -->
+      <div class="footer-column">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/sobre">Sobre</a></li>
+          <li><a routerLink="/imoveis">Imóveis</a></li>
+          <li><a routerLink="/contato">Contato</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Us -->
+      <div class="footer-column">
+        <h3>Contato</h3>
+        <ul>
+          <li>
+            <span class="material-icons">phone</span>
+            (83) 9999-9999
+          </li>
+          <li>
+            <span class="material-icons">email</span>
+            contato&#64;jennissonrealty.com
+          </li>
+          <li>
+            <span class="material-icons">location_on</span>
+            João Pessoa - PB
+          </li>
+        </ul>
+      </div>
+
+      <!-- Follow Us -->
+      <div class="footer-column">
+        <h3>Siga-nos</h3>
+        <div class="social-links">
+          <a href="#" class="social-link">
+            <span class="material-icons">facebook</span>
+          </a>
+          <a href="#" class="social-link">
+            <span class="material-icons">instagram</span>
+          </a>
+          <a href="#" class="social-link">
+            <span class="material-icons">twitter</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2024 Jennisson Realty. Todos os direitos reservados.</p>
+    </div>
+  </div>
+</footer>
+

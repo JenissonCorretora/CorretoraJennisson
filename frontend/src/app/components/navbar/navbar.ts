@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-navbar',
   imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.scss',
+  styleUrls: ['./navbar.scss'],
 })
 export class Navbar {
   // Estado do menu mobile
