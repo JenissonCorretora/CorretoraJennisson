@@ -1,6 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -8,16 +10,34 @@ import { CommonModule, NgIf } from '@angular/common';
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss'],
 })
-export class Navbar {
+export class Navbar implements OnInit, OnDestroy {
   // Estado do menu mobile
   protected menuOpen = signal(false);
 
-  // Estado de autenticação (simulado - depois conectar com serviço de auth)
-  // TODO: Conectar com AuthService
-  isAdmin = signal(false); // Altere para true para testar como admin
-  isLoggedIn = signal(false); // Usuário comum logado (não admin)
+  // Estado de autenticação (conectado com AuthService)
+  isAdmin = this.authService.isAdmin;
+  isLoggedIn = this.authService.isAuthenticated;
+  currentUser = this.authService.currentUser;
 
-  constructor(private router: Router) { }
+  private authSubscription?: Subscription;
+
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    // Escuta mudanças no estado de autenticação
+    this.authSubscription = this.authService.isAuthenticated$.subscribe(() => {
+      // Os signals já são reativos, mas podemos forçar atualização se necessário
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
+  }
 
   /**
    * Alterna o estado do menu mobile
@@ -39,5 +59,21 @@ export class Navbar {
   onLogin(): void {
     this.closeMenu();
     this.router.navigate(['/login']);
+  }
+
+  /**
+   * Ação de logout
+   */
+  onLogout(): void {
+    this.closeMenu();
+    this.authService.logout();
+  }
+
+  /**
+   * Obtém o email do usuário logado
+   */
+  getUserEmail(): string {
+    const user = this.currentUser();
+    return user?.email || '';
   }
 }

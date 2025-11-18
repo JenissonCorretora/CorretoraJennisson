@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -43,11 +45,13 @@ export const routes: Routes = [
   },
   {
     path: 'admin/imoveis',
-    loadComponent: () => import('./modules/admin/imoveis/imoveis-admin').then(m => m.ImoveisAdmin)
+    loadComponent: () => import('./modules/admin/imoveis/imoveis-admin').then(m => m.ImoveisAdmin),
+    canActivate: [adminGuard]
   },
   {
     path: 'favoritos',
-    loadComponent: () => import('./modules/favoritos/favoritos').then(m => m.Favoritos)
+    loadComponent: () => import('./modules/favoritos/favoritos').then(m => m.Favoritos),
+    canActivate: [authGuard]
   },
   {
     path: '**',
