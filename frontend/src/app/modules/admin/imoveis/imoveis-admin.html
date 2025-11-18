@@ -1,0 +1,409 @@
+<div class="admin-imoveis-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1>Gerenciar Imóveis</h1>
+        <p>Adicione, edite e exclua imóveis do sistema</p>
+      </div>
+      <button type="button"
+              class="btn-primary"
+              (click)="novoImovel()"
+              [disabled]="loading() || showForm()">
+        <span class="material-icons">add</span>
+        Novo Imóvel
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensagens -->
+  @if (successMessage()) {
+  <div class="alert alert-success" role="alert">
+    <span class="material-icons">check_circle</span>
+    <p>{{ successMessage() }}</p>
+  </div>
+  }
+
+  @if (errorMessage()) {
+  <div class="alert alert-error" role="alert">
+    <span class="material-icons">error</span>
+    <p>{{ errorMessage() }}</p>
+  </div>
+  }
+
+  <!-- Formulário de Criação/Edição -->
+  @if (showForm()) {
+  <div class="form-section">
+    <div class="form-header">
+      <h2>{{ editingImovel() ? 'Editar Imóvel' : 'Novo Imóvel' }}</h2>
+      <button type="button"
+              class="btn-close"
+              (click)="cancelar()"
+              [disabled]="loading()"
+              aria-label="Fechar formulário">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <form class="admin-form" (ngSubmit)="salvarImovel()">
+      <!-- Informações Básicas -->
+      <div class="form-section-title">
+        <span class="material-icons">info</span>
+        Informações Básicas
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="titulo">
+            <span class="material-icons">title</span>
+            Título do Imóvel *
+          </label>
+          <input type="text"
+                 id="titulo"
+                 [(ngModel)]="formData.titulo"
+                 name="titulo"
+                 placeholder="Ex: Casa moderna com 3 quartos"
+                 [disabled]="loading()"
+                 required />
+        </div>
+
+        <div class="form-group">
+          <label for="tipo">
+            <span class="material-icons">home</span>
+            Tipo *
+          </label>
+          <select id="tipo"
+                  [(ngModel)]="formData.tipo"
+                  name="tipo"
+                  [disabled]="loading()"
+                  required
+                  title="Selecione o tipo de imóvel"
+                  aria-label="Tipo de imóvel">
+            <option value="">Selecione...</option>
+            <option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Localização -->
+      <div class="form-section-title">
+        <span class="material-icons">location_on</span>
+        Localização
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cidade">
+            <span class="material-icons">location_city</span>
+            Cidade *
+          </label>
+          <select id="cidade"
+                  [(ngModel)]="formData.cidade"
+                  name="cidade"
+                  [disabled]="loading()"
+                  required
+                  title="Selecione a cidade"
+                  aria-label="Cidade">
+            <option *ngFor="let cidade of cidades" [value]="cidade">{{ cidade }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="bairro">
+            <span class="material-icons">place</span>
+            Bairro *
+          </label>
+          <select id="bairro"
+                  [(ngModel)]="formData.bairro"
+                  name="bairro"
+                  [disabled]="loading()"
+                  required
+                  title="Selecione o bairro"
+                  aria-label="Bairro">
+            <option value="">Selecione...</option>
+            <option *ngFor="let bairro of bairros" [value]="bairro">{{ bairro }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Características -->
+      <div class="form-section-title">
+        <span class="material-icons">room_preferences</span>
+        Características
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="preco">
+            <span class="material-icons">attach_money</span>
+            Preço (R$) *
+          </label>
+          <input type="number"
+                 id="preco"
+                 [(ngModel)]="formData.preco"
+                 name="preco"
+                 placeholder="0"
+                 min="0"
+                 step="0.01"
+                 (input)="formatarPrecoInput()"
+                 [disabled]="loading()"
+                 required />
+        </div>
+
+        <div class="form-group">
+          <label for="area">
+            <span class="material-icons">square_foot</span>
+            Área (m²)
+          </label>
+          <input type="number"
+                 id="area"
+                 [(ngModel)]="formData.area"
+                 name="area"
+                 placeholder="0"
+                 min="0"
+                 [disabled]="loading()" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="quartos">
+            <span class="material-icons">bed</span>
+            Quartos
+          </label>
+          <input type="number"
+                 id="quartos"
+                 [(ngModel)]="formData.quartos"
+                 name="quartos"
+                 placeholder="0"
+                 min="0"
+                 [disabled]="loading()" />
+        </div>
+
+        <div class="form-group">
+          <label for="banheiros">
+            <span class="material-icons">bathroom</span>
+            Banheiros
+          </label>
+          <input type="number"
+                 id="banheiros"
+                 [(ngModel)]="formData.banheiros"
+                 name="banheiros"
+                 placeholder="0"
+                 min="0"
+                 [disabled]="loading()" />
+        </div>
+
+        <div class="form-group">
+          <label for="vagas">
+            <span class="material-icons">directions_car</span>
+            Vagas
+          </label>
+          <input type="number"
+                 id="vagas"
+                 [(ngModel)]="formData.vagas"
+                 name="vagas"
+                 placeholder="0"
+                 min="0"
+                 [disabled]="loading()" />
+        </div>
+      </div>
+
+      <!-- Descrição -->
+      <div class="form-section-title">
+        <span class="material-icons">description</span>
+        Descrição
+      </div>
+
+      <div class="form-group">
+        <label for="descricao">
+          <span class="material-icons">text_fields</span>
+          Descrição do Imóvel *
+        </label>
+        <textarea id="descricao"
+                  [(ngModel)]="formData.descricao"
+                  name="descricao"
+                  rows="5"
+                  placeholder="Descreva as características e benefícios do imóvel..."
+                  [disabled]="loading()"
+                  required></textarea>
+      </div>
+
+      <!-- Imagens -->
+      <div class="form-section-title">
+        <span class="material-icons">image</span>
+        Imagens do Imóvel
+      </div>
+
+      <div class="form-group">
+        <label for="imagens">
+          <span class="material-icons">photo_library</span>
+          Adicionar Imagens
+        </label>
+        <input #fileInput
+               type="file"
+               id="imagens"
+               name="imagens"
+               accept="image/*"
+               multiple
+               (change)="onImageSelect($event)"
+               [disabled]="loading()"
+               class="file-input-hidden" />
+        <button type="button"
+                class="btn-upload"
+                (click)="abrirSeletorImagens()"
+                [disabled]="loading()">
+          <span class="material-icons">cloud_upload</span>
+          Selecionar Imagens
+        </button>
+        <small class="field-hint">Você pode selecionar múltiplas imagens (máximo recomendado: 10)</small>
+      </div>
+
+      <!-- Preview das Imagens -->
+      @if (imagensPreview().length > 0) {
+      <div class="images-preview">
+        @for (img of imagensPreview(); track $index) {
+        <div class="image-preview-item">
+          <img [src]="img"
+               [alt]="'Preview imagem ' + ($index + 1)"
+               title="Preview imagem"
+               [attr.title]="'Preview imagem ' + ($index + 1)" />
+          <button type="button"
+                  class="btn-remove-image"
+                  (click)="removerImagem($index)"
+                  [disabled]="loading()"
+                  aria-label="Remover imagem">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Botões de Ação -->
+      <div class="form-actions">
+        <button type="button"
+                class="btn-secondary"
+                (click)="cancelar()"
+                [disabled]="loading()">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="btn-primary"
+                [disabled]="loading()">
+          @if (loading()) {
+          <span class="spinner"></span>
+          <span>Salvando...</span>
+          } @else {
+          <span class="material-icons">save</span>
+          <span>{{ editingImovel() ? 'Atualizar' : 'Criar' }} Imóvel</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+  }
+
+  <!-- Filtros e Busca -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input type="text"
+             placeholder="Buscar imóveis..."
+             [(ngModel)]="searchTerm"
+             (ngModelChange)="searchTerm.set($any($event))" />
+    </div>
+
+    <select class="filter-select"
+            [(ngModel)]="tipoFiltro"
+            (ngModelChange)="tipoFiltro.set($any($event))"
+            title="Filtrar por tipo"
+            aria-label="Filtrar por tipo">
+      <option value="">Todos os tipos</option>
+      <option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</option>
+    </select>
+  </div>
+
+  <!-- Lista de Imóveis -->
+  <div class="imoveis-list">
+    @if (imoveisFiltrados().length > 0) {
+    <div class="imoveis-grid">
+      @for (imovel of imoveisFiltrados(); track imovel.id) {
+      <div class="imovel-item">
+        <!-- Imagem -->
+        <div class="imovel-item-image">
+          @if (imovel.imagens && imovel.imagens.length > 0) {
+          <img [src]="imovel.imagens[0]"
+               [alt]="imovel.titulo"
+               title="Imagem do imóvel"
+               [attr.title]="imovel.titulo" />
+          } @else {
+          <div class="no-image">
+            <span class="material-icons">home</span>
+          </div>
+          }
+        </div>
+
+        <!-- Informações -->
+        <div class="imovel-item-info">
+          <h3>{{ imovel.titulo }}</h3>
+          <p class="imovel-location">
+            <span class="material-icons">location_on</span>
+            {{ imovel.bairro }}, {{ imovel.cidade }}
+          </p>
+
+          <div class="imovel-features">
+            @if (imovel.quartos) {
+            <span><span class="material-icons">bed</span> {{ imovel.quartos }}</span>
+            }
+            @if (imovel.banheiros) {
+            <span><span class="material-icons">bathroom</span> {{ imovel.banheiros }}</span>
+            }
+            @if (imovel.area) {
+            <span><span class="material-icons">square_foot</span> {{ imovel.area }}m²</span>
+            }
+          </div>
+
+          <div class="imovel-price">{{ formatarPreco(imovel.preco) }}</div>
+        </div>
+
+        <!-- Ações -->
+        <div class="imovel-item-actions">
+          <button type="button"
+                  class="btn-action btn-edit"
+                  (click)="editarImovel(imovel)"
+                  [disabled]="loading()"
+                  title="Editar imóvel"
+                  aria-label="Editar imóvel">
+            <span class="material-icons">edit</span>
+          </button>
+          <button type="button"
+                  class="btn-action btn-delete"
+                  (click)="deletarImovel(imovel)"
+                  [disabled]="loading()"
+                  title="Excluir imóvel"
+                  aria-label="Excluir imóvel">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+    } @else {
+    <div class="empty-state">
+      <span class="material-icons">home_work</span>
+      <h3>Nenhum imóvel encontrado</h3>
+      <p>{{ searchTerm() || tipoFiltro() ? 'Tente ajustar os filtros.' : 'Comece adicionando seu primeiro imóvel.' }}</p>
+      @if (!searchTerm() && !tipoFiltro()) {
+      <button type="button"
+              class="btn-primary"
+              (click)="novoImovel()">
+        <span class="material-icons">add</span>
+        Adicionar Primeiro Imóvel
+      </button>
+      }
+    </div>
+    }
+  </div>
+</div>
+

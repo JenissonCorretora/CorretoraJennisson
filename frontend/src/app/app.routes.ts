@@ -42,6 +42,10 @@ export const routes: Routes = [
     loadComponent: () => import('./layout/admin-register/admin-register').then(m => m.AdminRegister)
   },
   {
+    path: 'admin/imoveis',
+    loadComponent: () => import('./modules/admin/imoveis/imoveis-admin').then(m => m.ImoveisAdmin)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

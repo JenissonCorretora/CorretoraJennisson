@@ -1,10 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, NgIf],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss'],
 })
@@ -12,7 +12,11 @@ export class Navbar {
   // Estado do menu mobile
   protected menuOpen = signal(false);
 
-  constructor(private router: Router) {}
+  // Estado de autenticação (simulado - depois conectar com serviço de auth)
+  // TODO: Conectar com AuthService
+  isAdmin = signal(true); // Altere para true para testar como admin
+
+  constructor(private router: Router) { }
 
   /**
    * Alterna o estado do menu mobile

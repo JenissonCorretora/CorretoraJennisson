@@ -73,6 +73,9 @@
           border-radius: $border-radius-sm;
           transition: $transition;
           position: relative;
+          display: flex;
+          align-items: center;
+          gap: $spacing-xs;
 
           &::after {
             content: "";
@@ -100,6 +103,10 @@
             &::after {
               width: 70%;
             }
+          }
+
+          .material-icons {
+            font-size: 18px;
           }
         }
       }
@@ -147,6 +154,47 @@
             background-color: $active-color;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+          }
+        }
+
+        &.btn-primary {
+          text-decoration: none;
+
+          .material-icons {
+            font-size: 18px;
+          }
+
+          .btn-text {
+            @media (max-width: $breakpoint-sm) {
+              display: none;
+            }
+          }
+        }
+      }
+
+      // Badge de Identificação Admin (não é botão, apenas identificador)
+      .admin-badge {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        padding: 0.75rem 1.25rem;
+        background: linear-gradient(135deg, rgba(26, 26, 46, 0.1) 0%, rgba(15, 52, 96, 0.1) 100%);
+        border: 2px solid rgba(15, 52, 96, 0.3);
+        border-radius: $border-radius;
+        color: #0f3460;
+        font-weight: $font-weight-semibold;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        pointer-events: none; // Não é clicável, apenas visual
+
+        .material-icons {
+          font-size: 18px;
+          color: #0f3460;
+        }
+
+        .admin-text {
+          @media (max-width: $breakpoint-sm) {
+            display: none;
           }
         }
       }
@@ -241,6 +289,7 @@
               display: none;
             }
           }
+
         }
       }
 
@@ -248,8 +297,14 @@
         width: 100%;
         margin-top: $spacing-md;
         flex-direction: column;
+        gap: $spacing-md;
 
         .btn {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .admin-badge {
           width: 100%;
           justify-content: center;
         }

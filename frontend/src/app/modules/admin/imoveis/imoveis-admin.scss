@@ -1,0 +1,735 @@
+// Importar variáveis globais
+@use "../../../../styles/variables" as *;
+
+.admin-imoveis-page {
+  min-height: 100vh;
+  background: $bg-secondary;
+  padding: $spacing-2xl $spacing-xl;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-lg;
+  }
+}
+
+// Page Header
+.page-header {
+  background: white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-xl;
+  box-shadow: $shadow;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $spacing-lg;
+
+    @media (max-width: $breakpoint-sm) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    h1 {
+      font-size: $font-size-3xl;
+      font-weight: $font-weight-bold;
+      color: $primary-color;
+      margin-bottom: $spacing-xs;
+
+      @media (max-width: $breakpoint-sm) {
+        font-size: $font-size-2xl;
+      }
+    }
+
+    p {
+      font-size: $font-size-base;
+      color: $text-muted;
+      margin: 0;
+    }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      padding: 12px $spacing-xl;
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+      color: white;
+      border: none;
+      border-radius: $border-radius;
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      cursor: pointer;
+      transition: $transition;
+      box-shadow: 0 4px 12px rgba(15, 52, 96, 0.3);
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(15, 52, 96, 0.4);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .material-icons {
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+// Alerts
+.alert {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border-radius: $border-radius;
+  margin-bottom: $spacing-lg;
+  animation: slideDown 0.3s ease-out;
+
+  .material-icons {
+    font-size: 24px;
+  }
+
+  p {
+    margin: 0;
+    flex: 1;
+  }
+
+  &.alert-error {
+    background: rgba($danger-color, 0.1);
+    border: 1px solid $danger-color;
+    color: $danger-color;
+  }
+
+  &.alert-success {
+    background: rgba($success-color, 0.1);
+    border: 1px solid $success-color;
+    color: $success-color;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Form Section
+.form-section {
+  background: white;
+  border-radius: $border-radius-lg;
+  padding: $spacing-2xl;
+  margin-bottom: $spacing-xl;
+  box-shadow: $shadow;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-xl $spacing-lg;
+  }
+
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-2xl;
+    padding-bottom: $spacing-lg;
+    border-bottom: 2px solid $bg-secondary;
+
+    h2 {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $primary-color;
+      margin: 0;
+    }
+
+    .btn-close {
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      border: 2px solid #e0e0e0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: $transition;
+
+      &:hover:not(:disabled) {
+        border-color: $danger-color;
+        color: $danger-color;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .material-icons {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .form-section-title {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $primary-color;
+    margin: $spacing-xl 0 $spacing-lg;
+    padding-bottom: $spacing-sm;
+    border-bottom: 1px solid $bg-secondary;
+
+    &:first-of-type {
+      margin-top: 0;
+    }
+
+    .material-icons {
+      font-size: 24px;
+      color: $secondary-color;
+    }
+  }
+
+  .admin-form {
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: $spacing-lg;
+
+      @media (max-width: $breakpoint-sm) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: $spacing-lg;
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        color: $text-color;
+        margin-bottom: $spacing-xs;
+
+        .material-icons {
+          font-size: 18px;
+          color: #0f3460;
+        }
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px $spacing-md;
+        font-size: $font-size-sm;
+        border: 2px solid #e0e0e0;
+        border-radius: $border-radius;
+        transition: $transition;
+        background: white;
+        color: $text-color;
+        font-family: inherit;
+
+        &:focus {
+          outline: none;
+          border-color: #0f3460;
+          box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+        }
+
+        &:disabled {
+          background: $bg-secondary;
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+
+        &::placeholder {
+          color: $text-muted;
+        }
+      }
+
+      select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.6c-5%200-9.3%201.8-13.2%206.4-3.9%204.5-6%2010.2-6%2016.3%200%206.1%202.1%2011.8%206%2016.3l127.9%20127.9c3.9%203.9%209.2%206.2%2016.3%206.2s12.4-2.3%2016.3-6.2L287%20102c3.9-4.5%206-10.2%206-16.3s-2.1-11.8-6-16.3z%22%2F%3E%3C%2Fsvg%3E');
+        background-repeat: no-repeat;
+        background-position: right $spacing-md top 50%;
+        background-size: 12px auto;
+        padding-right: 40px;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      .field-hint {
+        display: block;
+        font-size: $font-size-xs;
+        color: $text-muted;
+        margin-top: $spacing-xs;
+      }
+
+      .file-input-hidden {
+        display: none;
+      }
+
+      .btn-upload {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-xs;
+        padding: 10px $spacing-lg;
+        background: $bg-secondary;
+        border: 2px dashed #e0e0e0;
+        border-radius: $border-radius;
+        color: $text-color;
+        font-size: $font-size-sm;
+        cursor: pointer;
+        transition: $transition;
+
+        &:hover:not(:disabled) {
+          border-color: $secondary-color;
+          background: rgba($secondary-color, 0.05);
+          color: $secondary-color;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .material-icons {
+          font-size: 20px;
+        }
+      }
+    }
+
+    // Images Preview
+    .images-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: $spacing-md;
+      margin-bottom: $spacing-lg;
+
+      .image-preview-item {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: $border-radius;
+        overflow: hidden;
+        border: 2px solid #e0e0e0;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .btn-remove-image {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 32px;
+          height: 32px;
+          background: rgba(255, 255, 255, 0.95);
+          border: none;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: $transition;
+          box-shadow: $shadow;
+
+          &:hover:not(:disabled) {
+            background: $danger-color;
+            color: white;
+            transform: scale(1.1);
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+
+          .material-icons {
+            font-size: 18px;
+          }
+        }
+      }
+    }
+
+    // Form Actions
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: $spacing-md;
+      margin-top: $spacing-2xl;
+      padding-top: $spacing-xl;
+      border-top: 2px solid $bg-secondary;
+
+      .btn-secondary {
+        padding: 12px $spacing-xl;
+        background: transparent;
+        border: 2px solid #e0e0e0;
+        color: $text-color;
+        border-radius: $border-radius;
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        cursor: pointer;
+        transition: $transition;
+
+        &:hover:not(:disabled) {
+          border-color: $text-muted;
+          background: $bg-secondary;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      .btn-primary {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        padding: 12px $spacing-xl;
+        background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+        color: white;
+        border: none;
+        border-radius: $border-radius;
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        cursor: pointer;
+        transition: $transition;
+        box-shadow: 0 4px 12px rgba(15, 52, 96, 0.3);
+
+        &:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(15, 52, 96, 0.4);
+        }
+
+        &:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .spinner {
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        .material-icons {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Filters Bar
+.filters-bar {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+  background: white;
+  padding: $spacing-lg;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow;
+
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+  }
+
+  .search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 10px $spacing-md;
+    border: 2px solid #e0e0e0;
+    border-radius: $border-radius;
+    background: white;
+
+    &:focus-within {
+      border-color: #0f3460;
+      box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+    }
+
+    .material-icons {
+      color: $text-muted;
+      font-size: 20px;
+    }
+
+    input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: $font-size-sm;
+      color: $text-color;
+
+      &::placeholder {
+        color: $text-muted;
+      }
+    }
+  }
+
+  .filter-select {
+    padding: 10px $spacing-md;
+    font-size: $font-size-sm;
+    border: 2px solid #e0e0e0;
+    border-radius: $border-radius;
+    background: white;
+    color: $text-color;
+    cursor: pointer;
+    transition: $transition;
+    min-width: 180px;
+
+    &:focus {
+      outline: none;
+      border-color: #0f3460;
+      box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      width: 100%;
+    }
+  }
+}
+
+// Imóveis List
+.imoveis-list {
+  .imoveis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: $spacing-xl;
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: $spacing-lg;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .imovel-item {
+    background: white;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    box-shadow: $shadow;
+    transition: $transition;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-lg;
+    }
+
+    .imovel-item-image {
+      height: 200px;
+      background: $bg-light;
+      position: relative;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .no-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $bg-secondary;
+        color: $text-muted;
+
+        .material-icons {
+          font-size: 48px;
+        }
+      }
+    }
+
+    .imovel-item-info {
+      padding: $spacing-lg;
+      flex: 1;
+
+      h3 {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: $primary-color;
+        margin-bottom: $spacing-sm;
+        line-height: 1.4;
+      }
+
+      .imovel-location {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        color: $text-light;
+        font-size: $font-size-sm;
+        margin-bottom: $spacing-md;
+
+        .material-icons {
+          font-size: 18px;
+          color: $secondary-color;
+        }
+      }
+
+      .imovel-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-md;
+        margin-bottom: $spacing-md;
+        font-size: $font-size-sm;
+        color: $text-color;
+
+        .material-icons {
+          font-size: 16px;
+          color: $secondary-color;
+          vertical-align: middle;
+        }
+      }
+
+      .imovel-price {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: $secondary-color;
+        margin-top: auto;
+      }
+    }
+
+    .imovel-item-actions {
+      display: flex;
+      gap: $spacing-sm;
+      padding: $spacing-md $spacing-lg;
+      border-top: 1px solid $bg-secondary;
+      background: $bg-secondary;
+
+      .btn-action {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-xs;
+        padding: 10px;
+        border: none;
+        border-radius: $border-radius;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        cursor: pointer;
+        transition: $transition;
+
+        .material-icons {
+          font-size: 20px;
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        &.btn-edit {
+          background: rgba($info-color, 0.1);
+          color: $info-color;
+
+          &:hover:not(:disabled) {
+            background: $info-color;
+            color: white;
+          }
+        }
+
+        &.btn-delete {
+          background: rgba($danger-color, 0.1);
+          color: $danger-color;
+
+          &:hover:not(:disabled) {
+            background: $danger-color;
+            color: white;
+          }
+        }
+      }
+    }
+  }
+
+  // Empty State
+  .empty-state {
+    text-align: center;
+    padding: $spacing-3xl $spacing-xl;
+    background: white;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow;
+
+    .material-icons {
+      font-size: 64px;
+      color: $text-muted;
+      margin-bottom: $spacing-lg;
+    }
+
+    h3 {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $primary-color;
+      margin-bottom: $spacing-md;
+    }
+
+    p {
+      font-size: $font-size-base;
+      color: $text-light;
+      margin-bottom: $spacing-xl;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-xs;
+      padding: $spacing-md $spacing-xl;
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+      color: white;
+      border: none;
+      border-radius: $border-radius;
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      cursor: pointer;
+      transition: $transition;
+      box-shadow: 0 4px 12px rgba(15, 52, 96, 0.3);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(15, 52, 96, 0.4);
+      }
+
+      .material-icons {
+        font-size: 20px;
+      }
+    }
+  }
+}
+
