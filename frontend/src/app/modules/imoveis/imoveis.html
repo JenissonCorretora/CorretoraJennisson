@@ -1,0 +1,312 @@
+<div class="imoveis-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>Encontre seu Imóvel Ideal</h1>
+      <p>Explore nossa seleção de imóveis em João Pessoa e região</p>
+    </div>
+  </section>
+
+  <!-- Container Principal -->
+  <div class="imoveis-container">
+    <!-- Sidebar de Filtros -->
+    <aside class="filters-sidebar">
+      <div class="filters-header">
+        <h2>Filtros</h2>
+        <button type="button"
+                class="btn-clear-filters"
+                (click)="limparFiltros()">
+          <span class="material-icons">refresh</span>
+          Limpar
+        </button>
+      </div>
+
+      <!-- Busca -->
+      <div class="filter-group">
+        <label class="filter-label">
+          <span class="material-icons">search</span>
+          Buscar
+        </label>
+        <input type="text"
+               class="filter-input"
+               placeholder="Digite título, localização..."
+               [(ngModel)]="searchTerm"
+               (ngModelChange)="onFiltroChange()" />
+      </div>
+
+      <!-- Tipo de Imóvel -->
+      <div class="filter-group">
+        <label for="tipo-imovel" class="filter-label">
+          <span class="material-icons">home</span>
+          Tipo de Imóvel
+        </label>
+        <select id="tipo-imovel"
+                class="filter-select"
+                [(ngModel)]="tipoSelecionado"
+                (ngModelChange)="onFiltroChange()"
+                title="Selecione o tipo de imóvel"
+                aria-label="Tipo de imóvel">
+          <option value="">Todos</option>
+          <option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</option>
+        </select>
+      </div>
+
+      <!-- Cidade -->
+      <div class="filter-group">
+        <label for="cidade-imovel" class="filter-label">
+          <span class="material-icons">location_city</span>
+          Cidade
+        </label>
+        <select id="cidade-imovel"
+                class="filter-select"
+                [(ngModel)]="cidadeSelecionada"
+                (ngModelChange)="onFiltroChange()"
+                title="Selecione a cidade"
+                aria-label="Cidade">
+          <option value="">Todas</option>
+          <option *ngFor="let cidade of cidades" [value]="cidade">{{ cidade }}</option>
+        </select>
+      </div>
+
+      <!-- Bairro -->
+      <div class="filter-group">
+        <label for="bairro-imovel" class="filter-label">
+          <span class="material-icons">place</span>
+          Bairro
+        </label>
+        <select id="bairro-imovel"
+                class="filter-select"
+                [(ngModel)]="bairroSelecionado"
+                (ngModelChange)="onFiltroChange()"
+                title="Selecione o bairro"
+                aria-label="Bairro">
+          <option value="">Todos</option>
+          <option *ngFor="let bairro of bairros" [value]="bairro">{{ bairro }}</option>
+        </select>
+      </div>
+
+      <!-- Preço -->
+      <div class="filter-group">
+        <label class="filter-label">
+          <span class="material-icons">attach_money</span>
+          Preço
+        </label>
+        <div class="price-inputs">
+          <input type="number"
+                 class="filter-input price-input"
+                 placeholder="Mín."
+                 [(ngModel)]="precoMin"
+                 (ngModelChange)="onFiltroChange()" />
+          <span class="price-separator">até</span>
+          <input type="number"
+                 class="filter-input price-input"
+                 placeholder="Máx."
+                 [(ngModel)]="precoMax"
+                 (ngModelChange)="onFiltroChange()" />
+        </div>
+      </div>
+
+      <!-- Quartos -->
+      <div class="filter-group">
+        <label for="quartos-imovel" class="filter-label">
+          <span class="material-icons">bed</span>
+          Quartos
+        </label>
+        <select id="quartos-imovel"
+                class="filter-select"
+                [(ngModel)]="quartosSelecionados"
+                (ngModelChange)="onFiltroChange()"
+                title="Selecione a quantidade de quartos"
+                aria-label="Quantidade de quartos">
+          <option [value]="null">Todos</option>
+          <option *ngFor="let qtd of opcoesQuartos" [value]="qtd">{{ qtd }}+ quartos</option>
+        </select>
+      </div>
+
+      <!-- Banheiros -->
+      <div class="filter-group">
+        <label for="banheiros-imovel" class="filter-label">
+          <span class="material-icons">bathroom</span>
+          Banheiros
+        </label>
+        <select id="banheiros-imovel"
+                class="filter-select"
+                [(ngModel)]="banheirosSelecionados"
+                (ngModelChange)="onFiltroChange()"
+                title="Selecione a quantidade de banheiros"
+                aria-label="Quantidade de banheiros">
+          <option [value]="null">Todos</option>
+          <option *ngFor="let qtd of opcoesBanheiros" [value]="qtd">{{ qtd }}+ banheiros</option>
+        </select>
+      </div>
+    </aside>
+
+    <!-- Área Principal -->
+    <main class="imoveis-main">
+      <!-- Header com Ordenação e Resultados -->
+      <div class="imoveis-header">
+        <div class="results-info">
+          <p class="results-count">
+            <strong>{{ imoveisFiltrados().length }}</strong>
+            @if (imoveisFiltrados().length === 1) {
+              <span>imóvel encontrado</span>
+            } @else {
+              <span>imóveis encontrados</span>
+            }
+          </p>
+        </div>
+
+        <div class="sort-options">
+          <label for="ordenacao" class="sr-only">Ordenar por</label>
+          <select id="ordenacao"
+                  class="sort-select"
+                  [(ngModel)]="ordenacao"
+                  (ngModelChange)="onFiltroChange()">
+            <option value="relevante">Mais relevantes</option>
+            <option value="preco-asc">Menor preço</option>
+            <option value="preco-desc">Maior preço</option>
+            <option value="maior-area">Maior área</option>
+          </select>
+
+          <label for="itensPagina" class="sr-only">Itens por página</label>
+          <select id="itensPagina"
+                  class="items-select"
+                  [(ngModel)]="itensPorPagina"
+                  (ngModelChange)="paginaAtual.set(1)">
+            <option [value]="12">12 por página</option>
+            <option [value]="24">24 por página</option>
+            <option [value]="48">48 por página</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Grid de Imóveis -->
+      @if (imoveisPagina().length > 0) {
+      <div class="imoveis-grid">
+        @for (imovel of imoveisPagina(); track imovel.id) {
+        <article class="imovel-card">
+          <!-- Botão de Favorito -->
+          <button type="button"
+                  class="favorite-btn"
+                  [class.favorited]="imovel.favoritado"
+                  (click)="toggleFavorito(imovel)"
+                  [title]="imovel.favoritado ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"
+                  aria-label="Favoritar imóvel">
+            <span class="material-icons">
+              {{ imovel.favoritado ? 'favorite' : 'favorite_border' }}
+            </span>
+          </button>
+
+          <!-- Imagem -->
+          <div class="imovel-image">
+            @if (imovel.imagem) {
+            <img [src]="imovel.imagem"
+                 [alt]="imovel.titulo"
+                 title="Imagem do imóvel"
+                 [attr.title]="imovel.titulo ? 'Imagem do imóvel: ' + imovel.titulo : 'Imagem do imóvel'"
+                 loading="lazy" />
+            } @else {
+            <div class="imovel-image-placeholder">
+              <span class="material-icons">home</span>
+              <p>Imagem não disponível</p>
+            </div>
+            }
+          </div>
+
+          <!-- Informações -->
+          <div class="imovel-info">
+            <h3 class="imovel-title">{{ imovel.titulo }}</h3>
+
+            <p class="imovel-location">
+              <span class="material-icons">location_on</span>
+              {{ imovel.bairro }}, {{ imovel.cidade }}
+            </p>
+
+            <div class="imovel-features">
+              @if (imovel.quartos) {
+              <span class="feature-item">
+                <span class="material-icons">bed</span>
+                {{ imovel.quartos }}
+              </span>
+              }
+              @if (imovel.banheiros) {
+              <span class="feature-item">
+                <span class="material-icons">bathroom</span>
+                {{ imovel.banheiros }}
+              </span>
+              }
+              @if (imovel.area) {
+              <span class="feature-item">
+                <span class="material-icons">square_foot</span>
+                {{ imovel.area }}m²
+              </span>
+              }
+              @if (imovel.vagas) {
+              <span class="feature-item">
+                <span class="material-icons">directions_car</span>
+                {{ imovel.vagas }}
+              </span>
+              }
+            </div>
+
+            <p class="imovel-description">{{ imovel.descricao }}</p>
+
+            <div class="imovel-footer">
+              <span class="imovel-price">{{ formatarPreco(imovel.preco) }}</span>
+              <a [routerLink]="['/imoveis', imovel.id]"
+                 class="btn-view-details">
+                Ver Detalhes
+                <span class="material-icons">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+        </article>
+        }
+      </div>
+
+      <!-- Paginação -->
+      @if (totalPaginas() > 1) {
+      <div class="pagination">
+        <button type="button"
+                class="pagination-btn"
+                [disabled]="paginaAtual() === 1"
+                (click)="paginaAnterior()"
+                aria-label="Página anterior">
+          <span class="material-icons">chevron_left</span>
+        </button>
+
+        @for (item of paginasArray(); track item) {
+        <button type="button"
+                class="pagination-btn"
+                [class.active]="paginaAtual() === item"
+                (click)="irParaPagina(item)">
+          {{ item }}
+        </button>
+        }
+
+        <button type="button"
+                class="pagination-btn"
+                [disabled]="paginaAtual() === totalPaginas()"
+                (click)="proximaPagina()"
+                aria-label="Próxima página">
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+      }
+      } @else {
+      <!-- Estado Vazio -->
+      <div class="empty-state">
+        <span class="material-icons">search_off</span>
+        <h3>Nenhum imóvel encontrado</h3>
+        <p>Tente ajustar os filtros para encontrar mais resultados.</p>
+        <button type="button"
+                class="btn-clear-filters"
+                (click)="limparFiltros()">
+          Limpar Filtros
+        </button>
+      </div>
+      }
+    </main>
+  </div>
+</div>
+
