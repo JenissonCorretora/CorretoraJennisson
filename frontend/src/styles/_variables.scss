@@ -1,0 +1,105 @@
+// ============================================
+// VARIÁVEIS GLOBAIS DO PROJETO
+// ============================================
+
+// Cores Principais
+$primary-color: #2c3e50;
+$secondary-color: #3498db;
+$accent-color: #e74c3c;
+$success-color: #27ae60;
+$warning-color: #f39c12;
+$danger-color: #e74c3c;
+$info-color: #3498db;
+
+// Cores de Texto
+$text-color: #333333;
+$text-light: #666666;
+$text-dark: #1a1a1a;
+$text-muted: #999999;
+
+// Cores de Background
+$bg-primary: #ffffff;
+$bg-secondary: #f8f9fa;
+$bg-dark: #2c3e50;
+$bg-light: #ecf0f1;
+
+// Cores de Hover/Interação
+$hover-color: #3498db;
+$active-color: #2980b9;
+$focus-color: #5dade2;
+
+// Navbar
+$navbar-height: 80px;
+$navbar-height-mobile: 70px;
+$navbar-bg: #ffffff;
+$navbar-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+// Transições
+$transition-fast: all 0.2s ease;
+$transition: all 0.3s ease;
+$transition-slow: all 0.5s ease;
+
+// Bordas
+$border-radius-sm: 4px;
+$border-radius: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+
+// Sombras
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+$shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.2);
+
+// Espaçamentos
+$spacing-xs: 0.25rem;  // 4px
+$spacing-sm: 0.5rem;   // 8px
+$spacing-md: 1rem;     // 16px
+$spacing-lg: 1.5rem;   // 24px
+$spacing-xl: 2rem;     // 32px
+$spacing-2xl: 3rem;    // 48px
+$spacing-3xl: 4rem;    // 64px
+
+// Breakpoints
+$breakpoint-xs: 480px;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-2xl: 1400px;
+
+// Tipografia
+$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+$font-family-heading: $font-family-base;
+
+$font-size-xs: 0.75rem;   // 12px
+$font-size-sm: 0.875rem;  // 14px
+$font-size-base: 1rem;    // 16px
+$font-size-lg: 1.125rem;  // 18px
+$font-size-xl: 1.25rem;   // 20px
+$font-size-2xl: 1.5rem;   // 24px
+$font-size-3xl: 1.875rem; // 30px
+$font-size-4xl: 2.25rem;  // 36px
+
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// Z-Index
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// Container
+$container-max-width: 1400px;
+$container-padding: 2rem;
+$container-padding-mobile: 1rem;
+

@@ -1,1 +1,41 @@
-/* You can add global styles to this file, and also import other style files */
+// Importar variáveis globais
+@import 'styles/variables';
+
+/* Reset e Estilos Globais */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: $text-color;
+  background-color: $bg-secondary;
+  line-height: 1.6;
+}
+
+// Scrollbar customizada
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+
+  &:hover {
+    background: #555;
+  }
+}

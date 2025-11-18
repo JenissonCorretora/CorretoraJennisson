@@ -1,0 +1,13 @@
+// Importar variáveis globais
+@import '../styles/variables';
+
+.main-content {
+  margin-top: $navbar-height;
+  min-height: calc(100vh - #{$navbar-height});
+
+  @media (max-width: $breakpoint-md) {
+    margin-top: $navbar-height-mobile;
+    min-height: calc(100vh - #{$navbar-height-mobile});
+  }
+}
+

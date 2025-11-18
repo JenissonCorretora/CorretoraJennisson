@@ -1,1 +1,84 @@
-<p>navbar works!</p>
+<nav class="navbar">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <div class="navbar-brand">
+      <a href="/"
+         class="logo">
+        <img src="/images/logo-menor.svg"
+             alt="Logo Jennisson Realty"
+             class="logo-img">
+      </a>
+    </div>
+
+    <!-- Menu Desktop -->
+    <div class="navbar-menu"
+         [class.active]="menuOpen()">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a routerLink="/"
+             class="nav-link"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: true}">
+            HOME
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/about"
+             class="nav-link"
+             routerLinkActive="active">
+            SOBRE
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/imoveis"
+             class="nav-link"
+             routerLinkActive="active">
+            IMÓVEIS
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/contato"
+             class="nav-link"
+             routerLinkActive="active">
+            CONTATO
+          </a>
+        </li>
+      </ul>
+
+      <!-- Botões de ação -->
+      <div class="navbar-actions">
+        <button class="btn btn-outline"
+                (click)="onLogin()">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="18"
+               height="18"
+               viewBox="0 0 24 24"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="2"
+               stroke-linecap="round"
+               stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12"
+                    cy="7"
+                    r="4"></circle>
+          </svg>
+          ENTRAR
+        </button>
+      </div>
+    </div>
+
+    <!-- Menu Hamburguer Mobile -->
+    <button class="navbar-toggler"
+            (click)="toggleMenu()"
+            [class.active]="menuOpen()"
+            [attr.aria-label]="menuOpen() ? 'Fechar menu' : 'Abrir menu'"
+            [attr.aria-expanded]="menuOpen()"
+            title="Menu de navegação">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="sr-only">{{ menuOpen() ? 'Fechar menu' : 'Abrir menu' }}</span>
+    </button>
+  </div>
+</nav>
