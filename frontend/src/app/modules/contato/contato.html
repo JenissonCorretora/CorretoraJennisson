@@ -1,0 +1,236 @@
+<div class="contato-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>Entre em Contato</h1>
+      <p>Estamos prontos para ajudá-lo a encontrar o imóvel perfeito</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="contato-container">
+    <!-- Informações de Contato -->
+    <div class="contato-info">
+      <div class="info-header">
+        <span class="material-icons">contact_support</span>
+        <h2>Informações de Contato</h2>
+        <p>Entre em contato diretamente conosco</p>
+      </div>
+
+      <!-- Cards de Contato -->
+      <div class="contact-cards">
+        <!-- WhatsApp -->
+        <div class="contact-card whatsapp"
+             (click)="openWhatsApp()">
+          <div class="card-icon">
+            <span class="material-icons">whatsapp</span>
+          </div>
+          <div class="card-content">
+            <h3>WhatsApp</h3>
+            <p>{{ corretor.phone }}</p>
+            <span class="card-action">Enviar mensagem →</span>
+          </div>
+        </div>
+
+        <!-- Telefone -->
+        <div class="contact-card phone"
+             (click)="makeCall()">
+          <div class="card-icon">
+            <span class="material-icons">phone</span>
+          </div>
+          <div class="card-content">
+            <h3>Telefone</h3>
+            <p>{{ corretor.phone }}</p>
+            <span class="card-action">Fazer ligação →</span>
+          </div>
+        </div>
+
+        <!-- E-mail -->
+        <div class="contact-card email"
+             (click)="sendEmail()">
+          <div class="card-icon">
+            <span class="material-icons">email</span>
+          </div>
+          <div class="card-content">
+            <h3>E-mail</h3>
+            <p>{{ corretor.email }}</p>
+            <span class="card-action">Enviar e-mail →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informações Adicionais -->
+      <div class="additional-info">
+        <div class="info-item">
+          <span class="material-icons">badge</span>
+          <div>
+            <strong>{{ corretor.name }}</strong>
+            <p>{{ corretor.creci }}</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="material-icons">schedule</span>
+          <div>
+            <strong>Horário de Atendimento</strong>
+            <p>{{ corretor.horario }}</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="material-icons">location_on</span>
+          <div>
+            <strong>Localização</strong>
+            <p>{{ corretor.address }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulário de Contato -->
+    <div class="contato-form-wrapper">
+      <div class="form-header">
+        <span class="material-icons">mail_outline</span>
+        <h2>Envie sua Mensagem</h2>
+        <p>Preencha o formulário abaixo e responderemos em breve</p>
+      </div>
+
+      <!-- Mensagem de Sucesso -->
+      @if (successMessage()) {
+      <div class="alert alert-success"
+           role="alert">
+        <span class="material-icons">check_circle</span>
+        <p>{{ successMessage() }}</p>
+      </div>
+      }
+
+      <!-- Mensagem de Erro -->
+      @if (errorMessage()) {
+      <div class="alert alert-error"
+           role="alert">
+        <span class="material-icons">error</span>
+        <p>{{ errorMessage() }}</p>
+      </div>
+      }
+
+      <!-- Formulário -->
+      <form class="contato-form"
+            (ngSubmit)="onSubmit()">
+
+        <!-- Informação do Usuário Logado -->
+        @if (isLoggedIn()) {
+        <div class="user-info-box">
+          <span class="material-icons">account_circle</span>
+          <div class="user-details">
+            <p><strong>Enviando como:</strong> {{ loggedUser.name }}</p>
+            <p class="user-contact">{{ loggedUser.email }} • {{ loggedUser.phone }}</p>
+          </div>
+        </div>
+        }
+
+        <!-- Campos para Usuário NÃO Logado -->
+        @if (!isLoggedIn()) {
+        <!-- Nome -->
+        <div class="form-group">
+          <label for="name">
+            <span class="material-icons">person</span>
+            Nome Completo *
+          </label>
+          <input type="text"
+                 id="name"
+                 name="name"
+                 [(ngModel)]="name"
+                 placeholder="Seu nome completo"
+                 [disabled]="loading()"
+                 required />
+        </div>
+
+        <!-- E-mail e Telefone -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">
+              <span class="material-icons">email</span>
+              E-mail *
+            </label>
+            <input type="email"
+                   id="email"
+                   name="email"
+                   [(ngModel)]="email"
+                   placeholder="seu@email.com"
+                   [disabled]="loading()"
+                   required />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">
+              <span class="material-icons">phone</span>
+              Telefone
+            </label>
+            <input type="tel"
+                   id="phone"
+                   name="phone"
+                   [(ngModel)]="phone"
+                   (input)="formatPhone()"
+                   placeholder="(00) 00000-0000"
+                   [disabled]="loading()"
+                   maxlength="15" />
+          </div>
+        </div>
+        }
+
+        <!-- Assunto -->
+        <div class="form-group">
+          <label for="subject">
+            <span class="material-icons">subject</span>
+            Assunto *
+          </label>
+          <select id="subject"
+                  name="subject"
+                  [(ngModel)]="subject"
+                  [disabled]="loading()"
+                  required>
+            <option value=""
+                    disabled
+                    selected>Selecione o assunto</option>
+            <option value="compra">Interesse em Comprar Imóvel</option>
+            <option value="venda">Quero Vender Meu Imóvel</option>
+            <option value="locacao">Interesse em Locação</option>
+            <option value="avaliacao">Avaliação de Imóvel</option>
+            <option value="informacoes">Solicitar Informações</option>
+            <option value="outros">Outros Assuntos</option>
+          </select>
+        </div>
+
+        <!-- Mensagem -->
+        <div class="form-group">
+          <label for="message">
+            <span class="material-icons">message</span>
+            Mensagem *
+          </label>
+          <textarea id="message"
+                    name="message"
+                    [(ngModel)]="message"
+                    placeholder="Digite sua mensagem..."
+                    [disabled]="loading()"
+                    rows="6"
+                    required></textarea>
+        </div>
+
+        <!-- Botão de Enviar -->
+        <button type="submit"
+                class="btn-submit"
+                [disabled]="loading()"
+                [class.loading]="loading()">
+          @if (loading()) {
+          <span class="spinner"></span>
+          <span>Enviando...</span>
+          } @else {
+          <span class="material-icons">send</span>
+          <span>Enviar Mensagem</span>
+          }
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+

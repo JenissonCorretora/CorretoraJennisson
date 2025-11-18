@@ -1,0 +1,492 @@
+// Importar variáveis globais
+@use '../../../styles/variables' as *;
+
+// Página de Contato
+.contato-page {
+  min-height: 100vh;
+  background: $bg-secondary;
+}
+
+// Hero Section
+.hero-section {
+  height: 400px;
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: $breakpoint-sm) {
+    height: 300px;
+  }
+
+  .hero-content {
+    text-align: center;
+    color: white;
+    padding: $spacing-2xl;
+
+    h1 {
+      font-size: $font-size-4xl;
+      font-weight: $font-weight-bold;
+      margin-bottom: $spacing-md;
+
+      @media (max-width: $breakpoint-sm) {
+        font-size: $font-size-3xl;
+      }
+    }
+
+    p {
+      font-size: $font-size-xl;
+      opacity: 0.95;
+
+      @media (max-width: $breakpoint-sm) {
+        font-size: $font-size-lg;
+      }
+    }
+  }
+}
+
+// Container Principal
+.contato-container {
+  max-width: 1200px;
+  margin: -80px auto 0;
+  padding: 0 $spacing-xl $spacing-3xl;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: $spacing-3xl;
+  position: relative;
+  z-index: 2;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    margin-top: -50px;
+    padding: 0 $spacing-lg $spacing-2xl;
+    gap: $spacing-2xl;
+  }
+}
+
+// ===================
+// INFORMAÇÕES DE CONTATO
+// ===================
+.contato-info {
+  .info-header {
+    text-align: center;
+    margin-bottom: $spacing-2xl;
+    padding: $spacing-xl;
+    background: white;
+    border-radius: $border-radius;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    .material-icons {
+      font-size: 48px;
+      color: $secondary-color;
+      margin-bottom: $spacing-md;
+    }
+
+    h2 {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $primary-color;
+      margin-bottom: $spacing-sm;
+    }
+
+    p {
+      color: $text-muted;
+      font-size: $font-size-base;
+    }
+  }
+}
+
+// Cards de Contato
+.contact-cards {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-2xl;
+}
+
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-xl;
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: $transition;
+  border-left: 4px solid transparent;
+
+  &:hover {
+    transform: translateX(8px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  &.whatsapp {
+    border-left-color: #25d366;
+
+    .card-icon {
+      background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+    }
+
+    &:hover .card-action {
+      color: #25d366;
+    }
+  }
+
+  &.phone {
+    border-left-color: $secondary-color;
+
+    .card-icon {
+      background: linear-gradient(135deg, $secondary-color 0%, $primary-color 100%);
+    }
+
+    &:hover .card-action {
+      color: $secondary-color;
+    }
+  }
+
+  &.email {
+    border-left-color: #ea4335;
+
+    .card-icon {
+      background: linear-gradient(135deg, #ea4335 0%, #c5221f 100%);
+    }
+
+    &:hover .card-action {
+      color: #ea4335;
+    }
+  }
+
+  .card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    .material-icons {
+      font-size: 32px;
+      color: white;
+    }
+  }
+
+  .card-content {
+    flex: 1;
+
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-bold;
+      color: $primary-color;
+      margin-bottom: $spacing-xs;
+    }
+
+    p {
+      font-size: $font-size-base;
+      color: $text-color;
+      margin-bottom: $spacing-xs;
+    }
+
+    .card-action {
+      font-size: $font-size-sm;
+      color: $text-muted;
+      font-weight: $font-weight-medium;
+      transition: $transition;
+    }
+  }
+}
+
+// Informações Adicionais
+.additional-info {
+  background: white;
+  padding: $spacing-xl;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  .info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-md;
+    padding: $spacing-md 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .material-icons {
+      font-size: 24px;
+      color: $secondary-color;
+      margin-top: 2px;
+    }
+
+    strong {
+      display: block;
+      font-size: $font-size-base;
+      font-weight: $font-weight-semibold;
+      color: $primary-color;
+      margin-bottom: $spacing-xs;
+    }
+
+    p {
+      margin: 0;
+      font-size: $font-size-sm;
+      color: $text-muted;
+    }
+  }
+}
+
+// ===================
+// FORMULÁRIO DE CONTATO
+// ===================
+.contato-form-wrapper {
+  background: white;
+  padding: $spacing-2xl;
+  border-radius: $border-radius;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-xl $spacing-lg;
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: $spacing-2xl;
+
+    .material-icons {
+      font-size: 48px;
+      color: $secondary-color;
+      margin-bottom: $spacing-md;
+    }
+
+    h2 {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $primary-color;
+      margin-bottom: $spacing-sm;
+    }
+
+    p {
+      color: $text-muted;
+      font-size: $font-size-base;
+    }
+  }
+}
+
+// Alerts
+.alert {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  border-radius: $border-radius;
+  margin-bottom: $spacing-xl;
+  animation: slideDown 0.3s ease-out;
+
+  .material-icons {
+    font-size: 24px;
+  }
+
+  p {
+    margin: 0;
+    flex: 1;
+  }
+
+  &.alert-error {
+    background: rgba($danger-color, 0.1);
+    border: 1px solid $danger-color;
+    color: $danger-color;
+  }
+
+  &.alert-success {
+    background: rgba($success-color, 0.1);
+    border: 1px solid $success-color;
+    color: $success-color;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Formulário
+.contato-form {
+  // Box de Informações do Usuário Logado
+  .user-info-box {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-lg;
+    margin-bottom: $spacing-xl;
+    background: linear-gradient(135deg, rgba($secondary-color, 0.05) 0%, rgba($primary-color, 0.05) 100%);
+    border: 2px solid rgba($secondary-color, 0.2);
+    border-radius: $border-radius;
+
+    .material-icons {
+      font-size: 40px;
+      color: $secondary-color;
+      flex-shrink: 0;
+    }
+
+    .user-details {
+      flex: 1;
+
+      p {
+        margin: 0;
+        font-size: $font-size-base;
+        color: $text-color;
+
+        strong {
+          font-weight: $font-weight-semibold;
+          color: $primary-color;
+        }
+      }
+
+      .user-contact {
+        margin-top: $spacing-xs;
+        font-size: $font-size-sm;
+        color: $text-muted;
+      }
+    }
+  }
+
+  .form-group {
+    margin-bottom: $spacing-lg;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+      color: $text-color;
+      margin-bottom: $spacing-xs;
+
+      .material-icons {
+        font-size: 18px;
+        color: $secondary-color;
+      }
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+      width: 100%;
+      padding: $spacing-md $spacing-lg;
+      font-size: $font-size-base;
+      border: 2px solid #e0e0e0;
+      border-radius: $border-radius;
+      transition: $transition;
+      background: white;
+      font-family: inherit;
+
+      &:focus {
+        outline: none;
+        border-color: $secondary-color;
+        box-shadow: 0 0 0 3px rgba($secondary-color, 0.1);
+      }
+
+      &:disabled {
+        background: $bg-secondary;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      &::placeholder {
+        color: $text-muted;
+      }
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right $spacing-md center;
+      padding-right: $spacing-3xl;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.6;
+    }
+  }
+
+  // Linha com 2 campos
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-md;
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Botão de enviar
+  .btn-submit {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: $spacing-lg;
+    margin-top: $spacing-xl;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: white;
+    background: linear-gradient(135deg, $secondary-color 0%, $primary-color 100%);
+    border: none;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: $transition;
+    box-shadow: 0 4px 12px rgba($secondary-color, 0.3);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba($secondary-color, 0.4);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    &.loading {
+      .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+    }
+
+    .material-icons {
+      font-size: 24px;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
