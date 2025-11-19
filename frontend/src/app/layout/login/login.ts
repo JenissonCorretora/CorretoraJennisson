@@ -61,15 +61,34 @@ export class Login {
 
     const loginType = this.loginType();
 
-    // Tenta login baseado no tipo selecionado
+    // Se for modo específico (admin ou usuario), usa o método direto
     if (loginType === 'admin') {
       this.loginAsAdmin();
     } else if (loginType === 'usuario') {
       this.loginAsUsuario();
     } else {
-      // Auto: tenta admin primeiro, se falhar tenta usuário
-      this.loginAsAdmin();
+      // Auto: identifica o tipo de usuário automaticamente
+      this.loginAuto();
     }
+  }
+
+  /**
+   * Login automático - identifica o tipo de usuário e faz login no endpoint correto
+   */
+  private loginAuto(): void {
+    this.authService.login(this.email, this.password).subscribe({
+      next: () => {
+        // Login bem-sucedido - o AuthService já redireciona
+        this.loading.set(false);
+        const user = this.authService.getCurrentUser();
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] ||
+                         (user?.role === 'Admin' ? '/admin/imoveis' : '/imoveis');
+        this.router.navigate([returnUrl]);
+      },
+      error: (error) => {
+        this.handleLoginError(error);
+      }
+    });
   }
 
   /**
@@ -84,12 +103,7 @@ export class Login {
         this.router.navigate([returnUrl]);
       },
       error: (error) => {
-        // Se for auto e falhar, tenta como usuário
-        if (this.loginType() === 'auto') {
-          this.loginAsUsuario();
-        } else {
-          this.handleLoginError(error);
-        }
+        this.handleLoginError(error);
       }
     });
   }
@@ -117,7 +131,12 @@ export class Login {
   private handleLoginError(error: any): void {
     this.loading.set(false);
 
+    // Limpa qualquer token antigo que possa estar interferindo
+    // Isso garante que não há tokens inválidos causando problemas
     if (error.status === 401) {
+      // Se for 401, pode ser que haja um token antigo inválido
+      // Limpa tokens para garantir estado limpo
+      this.authService.logout();
       this.errorMessage.set('E-mail ou senha inválidos. Verifique suas credenciais.');
     } else if (error.status === 0) {
       this.errorMessage.set('Erro de conexão. Verifique se o servidor está rodando.');

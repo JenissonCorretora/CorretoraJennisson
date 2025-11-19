@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { UsuarioService, CreateUsuarioRequest } from '../../services/usuario.service';
 
 @Component({
   selector: 'app-register',
@@ -26,18 +27,21 @@ export class Register {
   errorMessage = signal('');
   successMessage = signal('');
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private usuarioService: UsuarioService
+  ) {}
 
   /**
    * Realiza o cadastro
    */
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     // Limpa mensagens anteriores
     this.errorMessage.set('');
     this.successMessage.set('');
 
     // Validações básicas
-    if (!this.name || !this.email || !this.password || !this.confirmPassword) {
+    if (!this.email || !this.password || !this.confirmPassword) {
       this.errorMessage.set('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
@@ -67,27 +71,55 @@ export class Register {
       return;
     }
 
-    // Simula loading
+    // Prepara dados para envio (sem name e sem stream_user_id)
+    // O backend vai validar se o email já existe
     this.loading.set(true);
+    const usuarioData: CreateUsuarioRequest = {
+      email: this.email.trim(),
+      senha: this.password,
+      telefone: this.phone.trim() || undefined
+      // stream_user_id comentado conforme solicitado
+    };
 
-    // TODO: Implementar chamada para API
-    setTimeout(() => {
-      this.loading.set(false);
-      console.log('Cadastro:', {
-        name: this.name,
-        email: this.email,
-        phone: this.phone,
-        acceptTerms: this.acceptTerms
-      });
+    // Chama a API para criar o usuário
+    this.usuarioService.create(usuarioData).subscribe({
+      next: (usuario) => {
+        this.loading.set(false);
+        this.successMessage.set('Conta criada com sucesso! Redirecionando para login...');
 
-      // Simula sucesso
-      this.successMessage.set('Conta criada com sucesso! Redirecionando...');
+        // Limpa o formulário
+        this.name = '';
+        this.email = '';
+        this.phone = '';
+        this.password = '';
+        this.confirmPassword = '';
+        this.acceptTerms = false;
 
-      // Redireciona após 2 segundos
-      setTimeout(() => {
-        this.router.navigate(['/login']);
-      }, 2000);
-    }, 2000);
+        // Redireciona após 2 segundos
+        setTimeout(() => {
+          this.router.navigate(['/login'], {
+            queryParams: { registered: 'true' }
+          });
+        }, 2000);
+      },
+      error: (error) => {
+        this.loading.set(false);
+        console.error('Erro ao criar usuário:', error);
+
+        // Tratamento de erros específicos
+        if (error.status === 400) {
+          this.errorMessage.set('Dados inválidos. Verifique os campos e tente novamente.');
+        } else if (error.status === 409 || error.status === 422) {
+          this.errorMessage.set('Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.');
+        } else if (error.status === 0 || error.status >= 500) {
+          this.errorMessage.set('Erro no servidor. Tente novamente mais tarde.');
+        } else if (error.status === 404) {
+          this.errorMessage.set('Serviço não encontrado. Verifique sua conexão.');
+        } else {
+          this.errorMessage.set('Erro ao criar conta. Tente novamente.');
+        }
+      }
+    });
   }
 
   /**

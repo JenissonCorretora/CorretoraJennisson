@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AdministradorService } from '../../services/administrador.service';
 
 @Component({
   selector: 'app-admin-register',
@@ -26,7 +27,10 @@ export class AdminRegister {
   errorMessage = signal('');
   successMessage = signal('');
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private administradorService: AdministradorService
+  ) {}
 
   /**
    * Realiza o cadastro do administrador
@@ -67,30 +71,78 @@ export class AdminRegister {
       return;
     }
 
-    // Simula loading
+    // Inicia o processo de cadastro
     this.loading.set(true);
 
-    // TODO: Implementar chamada para API
-    setTimeout(() => {
-      this.loading.set(false);
-      console.log('Cadastro Admin:', {
-        name: this.name,
-        email: this.email,
-        phone: this.phone,
-        creci: this.creci
+    // Verifica se o email já existe
+    this.administradorService.emailExists(this.email).then((exists) => {
+      if (exists) {
+        this.loading.set(false);
+        this.errorMessage.set('Este e-mail já está cadastrado como administrador.');
+        return;
+      }
+
+      // Prepara os dados para envio
+      const telefoneLimpo = this.phone ? this.phone.replace(/\D/g, '') : undefined;
+      const creciLimpo = this.creci.replace(/\D/g, '');
+
+      const administradorData = {
+        nome: this.name.trim(),
+        email: this.email.trim().toLowerCase(),
+        senha: this.password,
+        telefone: telefoneLimpo,
+        id_PFPJ: creciLimpo || undefined
+        // stream_user_id não é enviado - será implementado no futuro para chatbot
+      };
+
+      // Chama a API para criar o administrador
+      this.administradorService.create(administradorData).subscribe({
+        next: (response) => {
+          this.loading.set(false);
+          this.successMessage.set('Conta de administrador criada com sucesso! Você já pode fazer login.');
+
+          // Limpa os campos após 2 segundos
+          setTimeout(() => {
+            this.name = '';
+            this.email = '';
+            this.phone = '';
+            this.creci = '';
+            this.password = '';
+            this.confirmPassword = '';
+            this.successMessage.set('');
+
+            // Opcional: redireciona para login após 3 segundos
+            setTimeout(() => {
+              this.router.navigate(['/login']);
+            }, 1000);
+          }, 2000);
+        },
+        error: (error) => {
+          this.loading.set(false);
+          console.error('Erro ao criar administrador:', error);
+
+          if (error.status === 400) {
+            // Erro de validação do backend
+            const errorMessage = error.error?.message || error.error || 'Dados inválidos. Verifique os campos e tente novamente.';
+            this.errorMessage.set(errorMessage);
+          } else if (error.status === 409 || error.status === 422) {
+            // Conflito - email já existe ou dados duplicados
+            this.errorMessage.set('Este e-mail já está cadastrado ou há dados duplicados.');
+          } else if (error.status === 0) {
+            // Erro de conexão
+            this.errorMessage.set('Erro de conexão. Verifique se o servidor está rodando.');
+          } else {
+            // Outros erros
+            this.errorMessage.set('Erro ao criar conta de administrador. Tente novamente mais tarde.');
+          }
+        }
       });
-
-      // Simula sucesso
-      this.successMessage.set('Conta de administrador criada com sucesso! Você já pode fazer login.');
-
-      // Limpa os campos
-      this.name = '';
-      this.email = '';
-      this.phone = '';
-      this.creci = '';
-      this.password = '';
-      this.confirmPassword = '';
-    }, 2000);
+    }).catch((error) => {
+      this.loading.set(false);
+      console.error('Erro ao verificar email:', error);
+      // Continua com o cadastro mesmo se a verificação falhar
+      // O backend fará a validação final
+    });
   }
 
   /**
