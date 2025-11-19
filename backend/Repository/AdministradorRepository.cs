@@ -31,8 +31,9 @@ namespace CorretoraJenissonLuckwuAPI.Repository
         }
         public async Task<Administrador?> GetByEmailAsync(string email)
         {
+            // Comparação case-insensitive para email
             return await _context.Administradores
-                .FirstOrDefaultAsync(a => a.Email == email);
+                .FirstOrDefaultAsync(a => a.Email.ToLower() == email.ToLower());
         }
         public async Task<Administrador?> PostAsync(int id, Administrador administrador) 
         {

@@ -19,7 +19,8 @@ namespace CorretoraJenissonLuckwuAPI.Models.Entities
     [Required]
     public string? Senha { get; set; }
 
-    [Required]
+    // Stream_user_id comentado - será implementado no futuro para chatbot
+    // [Required]
     public string? Stream_user_id { get; set; }
 
     [Phone]
