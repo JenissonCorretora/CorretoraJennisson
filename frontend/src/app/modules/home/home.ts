@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ImovelService, Imovel, StatusImovel } from '../../services/imovel.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, NgIf, NgFor, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './home.html',
   styleUrls: ['./home.scss']
 })

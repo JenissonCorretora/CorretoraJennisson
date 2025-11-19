@@ -43,62 +43,56 @@
   <div class="container">
     <h2 class="section-title">Imóveis em Destaque</h2>
 
-    <ng-container *ngIf="loadingFeatured; else featuredContent">
-      <div class="loading-state">
-        <span class="material-icons">hourglass_top</span>
-        <p>Carregando imóveis em destaque...</p>
-      </div>
-    </ng-container>
-
-    <ng-template #featuredContent>
-      <ng-container *ngIf="!featuredError; else featuredErrorBlock">
-        <ng-container *ngIf="featuredImoveis.length > 0; else featuredEmpty">
-          <div class="property-grid">
-            <div class="property-card" *ngFor="let imovel of featuredImoveis">
-              <div class="property-image">
-                <img [src]="getImagemUrl(imovel)"
-                     alt="{{ imovel.titulo || 'Imagem do imóvel' }}"
-                     title="{{ imovel.titulo || 'Imagem do imóvel' }}"
-                     loading="lazy" />
-                <span class="property-status">{{ imovel.status }}</span>
-              </div>
-              <div class="property-info">
-                <h3>{{ imovel.titulo }}</h3>
-                <p class="property-location">
-                  <span class="material-icons">location_on</span>
-                  {{ imovel.endereco }}, {{ imovel.cidade }} - {{ imovel.estado }}
-                </p>
-                <p class="property-description">
-                  {{ (imovel.descricao || '') | slice:0:110 }}{{ imovel.descricao && imovel.descricao.length > 110 ? '...' : '' }}
-                </p>
-                <div class="property-price">{{ formatarPreco(imovel.preco) }}</div>
-                <div class="property-actions">
-                  <a [routerLink]="['/imoveis', imovel.id]" class="btn btn-primary">
-                    Ver Detalhes
-                    <span class="material-icons">arrow_forward</span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-      </ng-container>
-    </ng-template>
-
-    <ng-template #featuredErrorBlock>
+    @if (loadingFeatured) {
+    <div class="loading-state">
+      <span class="material-icons">hourglass_top</span>
+      <p>Carregando imóveis em destaque...</p>
+    </div>
+    } @else {
+      @if (featuredError) {
       <div class="alert alert-error">
         <span class="material-icons">error</span>
         <p>{{ featuredError }}</p>
       </div>
-    </ng-template>
-
-    <ng-template #featuredEmpty>
+      } @else if (featuredImoveis.length === 0) {
       <div class="empty-state">
         <span class="material-icons">add_photo_alternate</span>
         <p>Nenhum imóvel disponível em destaque no momento.</p>
         <small>Assim que novos imóveis forem publicados como disponíveis, eles aparecerão aqui.</small>
       </div>
-    </ng-template>
+      } @else {
+      <div class="property-grid">
+        @for (imovel of featuredImoveis; track imovel.id) {
+        <div class="property-card">
+          <div class="property-image">
+            <img [src]="getImagemUrl(imovel)"
+                 alt="{{ imovel.titulo || 'Imagem do imóvel' }}"
+                 title="{{ imovel.titulo || 'Imagem do imóvel' }}"
+                 loading="lazy" />
+            <span class="property-status">{{ imovel.status }}</span>
+          </div>
+          <div class="property-info">
+            <h3>{{ imovel.titulo }}</h3>
+            <p class="property-location">
+              <span class="material-icons">location_on</span>
+              {{ imovel.endereco }}, {{ imovel.cidade }} - {{ imovel.estado }}
+            </p>
+            <p class="property-description">
+              {{ (imovel.descricao || '') | slice:0:110 }}{{ imovel.descricao && imovel.descricao.length > 110 ? '...' : '' }}
+            </p>
+            <div class="property-price">{{ formatarPreco(imovel.preco) }}</div>
+            <div class="property-actions">
+              <a [routerLink]="['/imoveis', imovel.id]" class="btn btn-primary">
+                Ver Detalhes
+                <span class="material-icons">arrow_forward</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    }
 
     <div class="view-all">
       <a routerLink="/imoveis" class="btn btn-outline">
@@ -130,8 +124,8 @@
            (touchend)="onTouchEnd($event)">
         <div class="services-grid"
              [style.transform]="getCarouselTransform()">
-          <div *ngFor="let service of services"
-               class="service-card"
+          @for (service of services; track service.title) {
+          <div class="service-card"
                (click)="filterByCategory(service.title)">
             <div class="service-icon">
               <span class="material-icons">{{ service.icon }}</span>
@@ -140,6 +134,7 @@
             <p>{{ service.description }}</p>
             <span class="service-count">{{ service.count }}+ imóveis</span>
           </div>
+          }
         </div>
       </div>
 
@@ -155,8 +150,8 @@
 
     <!-- Indicadores (dots) -->
     <div class="carousel-indicators">
-      <button *ngFor="let service of services; let i = index"
-              class="indicator"
+      @for (service of services; let i = $index; track service.title) {
+      <button class="indicator"
               [class.active]="i === currentIndex"
               [class.disabled]="i > getMaxIndex()"
               [disabled]="i > getMaxIndex()"
@@ -165,6 +160,7 @@
               [title]="'Ir para categoria ' + (i + 1)">
         <span class="sr-only">Ir para categoria {{ i + 1 }}</span>
       </button>
+      }
     </div>
   </div>
 </section>
@@ -175,7 +171,8 @@
     <h2 class="section-title">O Que Dizem Nossos Clientes</h2>
 
     <div class="testimonials-grid">
-      <div *ngFor="let testimonial of testimonials" class="testimonial-card">
+      @for (testimonial of testimonials; track testimonial.name) {
+      <div class="testimonial-card">
         <div class="testimonial-content">
           <span class="quote-icon material-icons">format_quote</span>
           <p class="testimonial-text">{{ testimonial.text }}</p>
@@ -191,6 +188,7 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </div>
 </section>
