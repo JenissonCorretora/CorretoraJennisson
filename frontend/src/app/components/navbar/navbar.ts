@@ -1,4 +1,4 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -14,10 +14,10 @@ export class Navbar implements OnInit, OnDestroy {
   // Estado do menu mobile
   protected menuOpen = signal(false);
 
-  // Estado de autenticação (conectado com AuthService)
-  isAdmin = this.authService.isAdmin;
-  isLoggedIn = this.authService.isAuthenticated;
-  currentUser = this.authService.currentUser;
+  // Estado de autenticação (conectado com AuthService via computed)
+  isAdmin = computed(() => this.authService.isAdmin());
+  isLoggedIn = computed(() => this.authService.isAuthenticated());
+  currentUser = computed(() => this.authService.getCurrentUser());
 
   private authSubscription?: Subscription;
 

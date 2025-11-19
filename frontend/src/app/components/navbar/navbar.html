@@ -62,11 +62,18 @@
         <!-- Identificador Admin, Botão Favoritos ou Botão Entrar -->
         <ng-container *ngIf="isAdmin()">
           <div class="admin-badge"
-               title="Você está logado como administrador"
+               title="Você está logado como administrador - {{ getUserEmail() }}"
                aria-label="Status de administrador">
             <span class="material-icons">admin_panel_settings</span>
             <span class="admin-text">ADMIN</span>
           </div>
+          <button class="btn btn-outline btn-logout"
+                  (click)="onLogout()"
+                  title="Sair"
+                  aria-label="Fazer logout">
+            <span class="material-icons">logout</span>
+            <span class="btn-text">SAIR</span>
+          </button>
         </ng-container>
 
         <ng-container *ngIf="!isAdmin() && isLoggedIn(); else loginButton">
@@ -78,6 +85,13 @@
             <span class="material-icons">favorite</span>
             <span class="btn-text">Favoritos</span>
           </a>
+          <button class="btn btn-outline btn-logout"
+                  (click)="onLogout()"
+                  title="Sair"
+                  aria-label="Fazer logout">
+            <span class="material-icons">logout</span>
+            <span class="btn-text">SAIR</span>
+          </button>
         </ng-container>
 
         <ng-template #loginButton>
