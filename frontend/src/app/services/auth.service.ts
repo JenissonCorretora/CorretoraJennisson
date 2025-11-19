@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, tap, catchError, throwError, filter, take, map, finalize, switchMap } from 'rxjs';
 import { API_CONFIG, STORAGE_KEYS } from '../config/api.config';
 
 export interface LoginRequest {
@@ -22,6 +22,11 @@ export interface UserData {
   userId: number;
   email: string;
   role: string;
+}
+
+export interface UserTypeResponse {
+  userType: string; // "Admin" ou "User"
+  exists: boolean;
 }
 
 @Injectable({
@@ -45,6 +50,10 @@ export class AuthService {
   public currentUser = signal<UserData | null>(this.getUserFromStorage());
   public isAdmin = computed(() => this.currentUser()?.role === 'Admin');
 
+  // Controle de refresh token
+  private refreshInProgress = false;
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+
   constructor(
     private http: HttpClient,
     private router: Router
@@ -54,9 +63,41 @@ export class AuthService {
   }
 
   /**
-   * Realiza login como administrador
+   * Identifica o tipo de usuário (Admin ou User) baseado no email
    */
-  loginAdmin(email: string, senha: string): Observable<LoginResponse> {
+  identifyUserType(email: string): Observable<UserTypeResponse> {
+    return this.http.get<UserTypeResponse>(
+      `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.identifyUserType}`,
+      { params: { email } }
+    );
+  }
+
+  /**
+   * Realiza login automaticamente identificando o tipo de usuário
+   */
+  login(email: string, senha: string): Observable<LoginResponse> {
+    return this.identifyUserType(email).pipe(
+      switchMap((userTypeResponse) => {
+        if (!userTypeResponse.exists) {
+          return throwError(() => new Error('Email não encontrado no sistema'));
+        }
+
+        if (userTypeResponse.userType === 'Admin') {
+          return this.loginAdmin(email, senha);
+        } else if (userTypeResponse.userType === 'User') {
+          return this.loginUsuario(email, senha);
+        } else {
+          return throwError(() => new Error('Tipo de usuário desconhecido'));
+        }
+      })
+    );
+  }
+
+  /**
+   * Realiza login como administrador
+   * @param silent Se true, não loga erros no console (útil para tentativas automáticas)
+   */
+  loginAdmin(email: string, senha: string, silent: boolean = false): Observable<LoginResponse> {
     const request: LoginRequest = { email, senha };
     return this.http.post<LoginResponse>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.loginAdmin}`,
@@ -64,7 +105,10 @@ export class AuthService {
     ).pipe(
       tap(response => this.handleLoginSuccess(response)),
       catchError(error => {
-        console.error('Erro no login admin:', error);
+        // Só loga o erro se não for uma tentativa silenciosa
+        if (!silent) {
+          console.error('Erro no login admin:', error);
+        }
         return throwError(() => error);
       })
     );
@@ -72,8 +116,9 @@ export class AuthService {
 
   /**
    * Realiza login como usuário
+   * @param silent Se true, não loga erros no console (útil para tentativas automáticas)
    */
-  loginUsuario(email: string, senha: string): Observable<LoginResponse> {
+  loginUsuario(email: string, senha: string, silent: boolean = false): Observable<LoginResponse> {
     const request: LoginRequest = { email, senha };
     return this.http.post<LoginResponse>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.loginUsuario}`,
@@ -81,7 +126,10 @@ export class AuthService {
     ).pipe(
       tap(response => this.handleLoginSuccess(response)),
       catchError(error => {
-        console.error('Erro no login usuário:', error);
+        // Só loga o erro se não for uma tentativa silenciosa
+        if (!silent) {
+          console.error('Erro no login usuário:', error);
+        }
         return throwError(() => error);
       })
     );
@@ -124,19 +172,25 @@ export class AuthService {
   }
 
   /**
-   * Realiza logout
+   * Realiza logout completo (limpa estado e redireciona)
+   * Use este método quando o usuário faz logout explícito ou quando
+   * é necessário redirecionar após limpar a autenticação
    */
   logout(): void {
-    // Remove tokens e dados do usuário
-    localStorage.removeItem(this.accessTokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
-    localStorage.removeItem(this.userKey);
-
-    // Atualiza estado
-    this.updateAuthState(false, null);
+    // Limpa tokens e dados do usuário
+    this.clearAuthState();
 
     // Redireciona para home
     this.router.navigate(['/']);
+  }
+
+  /**
+   * Realiza logout sem redirecionar
+   * Útil quando você quer limpar a autenticação mas não redirecionar
+   * (por exemplo, quando já está na página de login)
+   */
+  logoutWithoutRedirect(): void {
+    this.clearAuthState();
   }
 
   /**
@@ -172,11 +226,26 @@ export class AuthService {
 
   /**
    * Verifica se o token expirou e limpa se necessário
+   * Limpa o estado de autenticação quando o token expira, mas não redireciona automaticamente
+   * (evita redirecionamentos indesejados ao acessar rotas públicas)
+   * Os guards e interceptors cuidarão do redirecionamento quando necessário
    */
   private checkTokenExpiration(): void {
     if (!this.hasValidToken()) {
-      this.logout();
+      // Limpa tokens e estado quando expirado (desloga silenciosamente)
+      this.clearAuthState();
     }
+  }
+
+  /**
+   * Limpa o estado de autenticação sem redirecionar
+   * Usado internamente quando o token expira ou precisa ser limpo
+   */
+  private clearAuthState(): void {
+    localStorage.removeItem(this.accessTokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    localStorage.removeItem(this.userKey);
+    this.updateAuthState(false, null);
   }
 
   /**
@@ -234,11 +303,21 @@ export class AuthService {
   /**
    * Tenta renovar o token usando refresh token
    */
-  refreshAccessToken(): Observable<LoginResponse> {
+  refreshAccessToken(): Observable<string> {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       return throwError(() => new Error('Refresh token não encontrado'));
     }
+
+    if (this.refreshInProgress) {
+      return this.refreshTokenSubject.pipe(
+        filter((token): token is string => token !== null),
+        take(1)
+      );
+    }
+
+    this.refreshInProgress = true;
+    this.refreshTokenSubject.next(null);
 
     return this.http.post<LoginResponse>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth.refreshToken}`,
@@ -249,11 +328,18 @@ export class AuthService {
         if (response.refreshToken) {
           localStorage.setItem(this.refreshTokenKey, response.refreshToken);
         }
+        this.refreshTokenSubject.next(response.accessToken);
+        // Mantém estado autenticado
+        this.updateAuthState(true, this.currentUser());
       }),
+      map(response => response.accessToken),
       catchError(error => {
-        // Se o refresh falhar, faz logout
+        this.refreshTokenSubject.next(null);
         this.logout();
         return throwError(() => error);
+      }),
+      finalize(() => {
+        this.refreshInProgress = false;
       })
     );
   }

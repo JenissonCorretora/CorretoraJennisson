@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom, catchError, of } from 'rxjs';
 import { API_CONFIG } from '../config/api.config';
 
 export interface Usuario {
@@ -17,7 +17,7 @@ export interface Usuario {
 export interface CreateUsuarioRequest {
   email: string;
   senha: string;
-  stream_user_id: string;
+  stream_user_id?: string; // Opcional - comentado conforme solicitado
   telefone?: string;
 }
 
@@ -88,16 +88,32 @@ export class UsuarioService {
 
   /**
    * Verifica se um email já está cadastrado
+   * Retorna false se não encontrar (404) ou se houver erro de rede
    */
   async emailExists(email: string): Promise<boolean> {
     try {
-      await this.getByEmail(email).toPromise();
-      return true;
+      // Usa catchError para tratar o erro antes de converter para Promise
+      // Isso evita que o erro apareça no console do navegador
+      const result = await firstValueFrom(
+        this.getByEmail(email).pipe(
+          catchError((error: any) => {
+            // Se for 404, o email não existe - retorna null silenciosamente
+            if (error.status === 404) {
+              return of(null);
+            }
+            // Se for outro erro, também retorna null mas loga um aviso
+            console.warn('Não foi possível verificar se o email existe. Continuando com o cadastro...', error.status);
+            return of(null);
+          })
+        )
+      );
+
+      // Se retornou um usuário, o email existe
+      return result !== null;
     } catch (error: any) {
-      if (error.status === 404) {
-        return false;
-      }
-      throw error;
+      // Fallback caso algo inesperado aconteça
+      console.warn('Erro inesperado ao verificar email:', error);
+      return false;
     }
   }
 }
