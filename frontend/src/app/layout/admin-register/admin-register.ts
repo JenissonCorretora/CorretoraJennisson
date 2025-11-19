@@ -101,21 +101,18 @@ export class AdminRegister {
           this.loading.set(false);
           this.successMessage.set('Conta de administrador criada com sucesso! Você já pode fazer login.');
 
-          // Limpa os campos após 2 segundos
-          setTimeout(() => {
-            this.name = '';
-            this.email = '';
-            this.phone = '';
-            this.creci = '';
-            this.password = '';
-            this.confirmPassword = '';
-            this.successMessage.set('');
+          // Limpa os campos
+          this.name = '';
+          this.email = '';
+          this.phone = '';
+          this.creci = '';
+          this.password = '';
+          this.confirmPassword = '';
 
-            // Opcional: redireciona para login após 3 segundos
-            setTimeout(() => {
-              this.router.navigate(['/login']);
-            }, 1000);
-          }, 2000);
+          // Redireciona para login após 1 segundo (tempo suficiente para ver a mensagem)
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 1000);
         },
         error: (error) => {
           this.loading.set(false);

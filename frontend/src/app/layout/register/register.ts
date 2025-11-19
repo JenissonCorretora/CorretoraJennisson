@@ -95,12 +95,12 @@ export class Register {
         this.confirmPassword = '';
         this.acceptTerms = false;
 
-        // Redireciona após 2 segundos
+        // Redireciona para login após 1 segundo (tempo suficiente para ver a mensagem)
         setTimeout(() => {
           this.router.navigate(['/login'], {
             queryParams: { registered: 'true' }
           });
-        }, 2000);
+        }, 1000);
       },
       error: (error) => {
         this.loading.set(false);
