@@ -61,15 +61,19 @@ export class ImagemImovelService {
   /**
    * Deleta uma imagem (requer autenticação admin)
    */
-  delete(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  delete(id: number): Observable<string> {
+    return this.http.delete(`${this.baseUrl}/${id}`, {
+      responseType: 'text'
+    }) as Observable<string>;
   }
 
   /**
    * Deleta todas as imagens de um imóvel (requer autenticação admin)
    */
-  deleteByImovelId(imovelId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/imovel/${imovelId}`);
+  deleteByImovelId(imovelId: number): Observable<string> {
+    return this.http.delete(`${this.baseUrl}/imovel/${imovelId}`, {
+      responseType: 'text'
+    }) as Observable<string>;
   }
 
   /**

@@ -76,9 +76,11 @@
                  id="tipoImovel"
                  name="tipoImovel"
                  list="tiposImovel"
+                 class="type-input"
                  [(ngModel)]="formData.tipoImovel"
                  [disabled]="loading()"
-                 placeholder="Ex: Cobertura, Loft, etc."
+                 placeholder="Ex: Casa"
+                 autocomplete="off"
                  required
                  title="Digite o tipo do imóvel"
                  aria-label="Tipo de imóvel" />

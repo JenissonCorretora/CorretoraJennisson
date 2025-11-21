@@ -7,6 +7,7 @@ using CorretoraJenissonLuckwuAPI.Infrastructure;
 using CorretoraJenissonLuckwuAPI.Repository;
 using CorretoraJenissonLuckwuAPI.Services;
 using Scalar.AspNetCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,12 @@ builder.Services.AddRouting(o =>
     o.LowercaseQueryStrings = true;
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddDbContext<CorretoraJenissonLuckwuDb>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),

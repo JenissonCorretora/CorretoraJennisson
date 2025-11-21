@@ -89,8 +89,10 @@ export class ImovelService {
   /**
    * Deleta um imóvel (requer autenticação admin)
    */
-  delete(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  delete(id: number): Observable<string> {
+    return this.http.delete(`${this.baseUrl}/${id}`, {
+      responseType: 'text'
+    }) as Observable<string>;
   }
 
   /**

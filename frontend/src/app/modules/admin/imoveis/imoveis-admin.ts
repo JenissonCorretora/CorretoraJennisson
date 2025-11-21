@@ -2,7 +2,7 @@ import { Component, signal, computed, ViewChild, ElementRef, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of, switchMap, map, catchError, finalize } from 'rxjs';
 import { ImovelService, Imovel, StatusImovel, CreateImovelRequest, DEFAULT_TIPOS_IMOVEL } from '../../../services/imovel.service';
 import { ImagemImovelService } from '../../../services/imagem-imovel.service';
 import { AuthService } from '../../../services/auth.service';
@@ -28,11 +28,10 @@ export class ImoveisAdmin implements OnInit {
   // Formulário
   formData: Partial<CreateImovelRequest> = {
     titulo: '',
-    tipoImovel: 'Casa',
+    tipoImovel: '',
     estado: 'PB',
     cidade: 'João Pessoa',
     endereco: '',
-    preco: 0,
     status: StatusImovel.Disponivel,
     descricao: ''
   };
@@ -137,8 +136,7 @@ export class ImoveisAdmin implements OnInit {
   }
 
   private tipDefault(): string {
-    const tipos = this.tipos();
-    return tipos.length > 0 ? tipos[0] : 'Casa';
+    return '';
   }
 
   /**
@@ -199,11 +197,11 @@ export class ImoveisAdmin implements OnInit {
     this.editingImovel.set(null);
     this.formData = {
       titulo: '',
-      tipoImovel: this.tipDefault(),
+      tipoImovel: '',
       estado: 'PB',
       cidade: 'João Pessoa',
       endereco: '',
-      preco: 0,
+      preco: undefined,
       status: StatusImovel.Disponivel,
       descricao: ''
     };
@@ -273,11 +271,13 @@ export class ImoveisAdmin implements OnInit {
         !this.formData.endereco || !this.formData.preco || !this.formData.descricao ||
         !this.formData.estado || !this.formData.status) {
       this.errorMessage.set('Por favor, preencha todos os campos obrigatórios.');
+      this.scrollToTop();
       return;
     }
 
     if (this.formData.preco! <= 0) {
       this.errorMessage.set('O preço deve ser maior que zero.');
+      this.scrollToTop();
       return;
     }
 
@@ -296,88 +296,73 @@ export class ImoveisAdmin implements OnInit {
     };
 
     const editing = this.editingImovel();
+    const operacao = editing ? 'atualizar' : 'criar';
 
-    if (editing) {
-      // Editar imóvel existente
-      this.imovelService.update(editing.id, imovelData).subscribe({
-        next: (imovelAtualizado) => {
-          // Faz upload das novas imagens se houver
-          const novasImagens = this.imagensSelecionadas();
-          if (novasImagens.length > 0) {
-            this.uploadImagens(imovelAtualizado.id, novasImagens, () => {
-              this.loading.set(false);
-              this.successMessage.set('Imóvel atualizado com sucesso!');
-              this.cancelar();
-              this.carregarImoveis();
-              setTimeout(() => this.successMessage.set(''), 3000);
-            });
-          } else {
-            this.loading.set(false);
-            this.successMessage.set('Imóvel atualizado com sucesso!');
-            this.cancelar();
-            this.carregarImoveis();
-            setTimeout(() => this.successMessage.set(''), 3000);
-          }
+    const salvar$ = editing
+      ? this.imovelService.update(editing.id, imovelData)
+      : this.imovelService.create(imovelData);
+
+    salvar$
+      .pipe(
+        switchMap((imovelSalvo) =>
+          this.processarUploads(imovelSalvo.id).pipe(
+            map(uploadComAviso => ({ imovel: imovelSalvo, uploadComAviso }))
+          )
+        ),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe({
+        next: ({ uploadComAviso }) => {
+          this.cancelar();
+          this.carregarImoveis();
+
+          const mensagemBase = editing
+            ? 'Imóvel atualizado com sucesso!'
+            : 'Imóvel criado com sucesso!';
+
+          const mensagemFinal = uploadComAviso
+            ? `${mensagemBase} Algumas imagens não foram enviadas.`
+            : mensagemBase;
+
+          this.successMessage.set(mensagemFinal);
+          setTimeout(() => this.successMessage.set(''), 3000);
         },
         error: (error) => {
-          console.error('Erro ao atualizar imóvel:', error);
-          this.errorMessage.set('Erro ao atualizar imóvel. Tente novamente.');
-          this.loading.set(false);
+          console.error('Erro ao salvar imóvel:', error);
+          this.errorMessage.set(this.getErroMensagemOperacao(operacao, error));
+          this.scrollToTop();
         }
       });
-    } else {
-      // Criar novo imóvel
-      this.imovelService.create(imovelData).subscribe({
-        next: (novoImovel) => {
-          // Faz upload das imagens
-          const imagens = this.imagensSelecionadas();
-          if (imagens.length > 0) {
-            this.uploadImagens(novoImovel.id, imagens, () => {
-              this.loading.set(false);
-              this.successMessage.set('Imóvel criado com sucesso!');
-              this.cancelar();
-              this.carregarImoveis();
-              setTimeout(() => this.successMessage.set(''), 3000);
-            });
-          } else {
-            this.loading.set(false);
-            this.successMessage.set('Imóvel criado com sucesso!');
-            this.cancelar();
-            this.carregarImoveis();
-            setTimeout(() => this.successMessage.set(''), 3000);
-          }
-        },
-        error: (error) => {
-          console.error('Erro ao criar imóvel:', error);
-          this.errorMessage.set('Erro ao criar imóvel. Tente novamente.');
-          this.loading.set(false);
-        }
-      });
-    }
   }
 
   /**
-   * Faz upload de múltiplas imagens
+   * Faz upload das novas imagens (quando houver) e retorna se houve aviso
    */
-  private uploadImagens(imovelId: number, files: File[], callback: () => void): void {
+  private processarUploads(imovelId: number) {
+    const arquivos = this.imagensSelecionadas();
+
+    if (arquivos.length === 0) {
+      this.imagensSelecionadas.set([]);
+      this.imagensPreview.set([]);
+      return of(false);
+    }
+
     this.uploadingImages.set(true);
+    const uploads = arquivos.map(file => this.imagemImovelService.upload(imovelId, file));
 
-    const uploads = files.map(file =>
-      this.imagemImovelService.upload(imovelId, file)
-    );
-
-    forkJoin(uploads).subscribe({
-      next: () => {
-        this.uploadingImages.set(false);
-        callback();
-      },
-      error: (error) => {
+    return forkJoin(uploads).pipe(
+      map(() => false),
+      catchError((error) => {
         console.error('Erro ao fazer upload de imagens:', error);
+        this.errorMessage.set('Imóvel salvo, mas algumas imagens não foram enviadas.');
+        return of(true);
+      }),
+      finalize(() => {
         this.uploadingImages.set(false);
-        this.errorMessage.set('Erro ao fazer upload de algumas imagens. O imóvel foi salvo, mas algumas imagens podem não ter sido enviadas.');
-        callback();
-      }
-    });
+        this.imagensSelecionadas.set([]);
+        this.imagensPreview.set([]);
+      })
+    );
   }
 
   /**
@@ -400,6 +385,14 @@ export class ImoveisAdmin implements OnInit {
       error: (error) => {
         console.error('Erro ao deletar imóvel:', error);
         this.loading.set(false);
+
+        if (error?.status === 404) {
+          this.successMessage.set('Imóvel já havia sido removido. Lista atualizada.');
+          this.carregarImoveis();
+          setTimeout(() => this.successMessage.set(''), 3000);
+          return;
+        }
+
         this.errorMessage.set('Erro ao excluir imóvel. Tente novamente.');
       }
     });
@@ -427,9 +420,52 @@ export class ImoveisAdmin implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao deletar imagem:', error);
+        if (error?.status === 404) {
+          this.successMessage.set('Imagem já havia sido removida. Lista atualizada.');
+          this.carregarImoveis();
+          setTimeout(() => this.successMessage.set(''), 3000);
+          return;
+        }
+
+        if (error?.status === 200 || error?.statusText === 'OK') {
+          // Tratamento para casos em que o backend retorna texto simples e o HttpClient interpreta como erro
+          this.successMessage.set('Imagem excluída com sucesso!');
+          this.carregarImoveis();
+          setTimeout(() => this.successMessage.set(''), 3000);
+          return;
+        }
+
         this.errorMessage.set('Erro ao excluir imagem. Tente novamente.');
       }
     });
+  }
+
+  private getErroMensagemOperacao(acao: string, error: any): string {
+    if (error?.status === 0) {
+      return 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
+    }
+
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+
+    if (error?.error?.message) {
+      return error.error.message;
+    }
+
+    if (error?.status === 400) {
+      return 'Dados inválidos. Verifique as informações e tente novamente.';
+    }
+
+    if (error?.status === 404) {
+      return 'Imóvel não encontrado.';
+    }
+
+    return `Erro ao ${acao} imóvel. Tente novamente.`;
+  }
+
+  private scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   /**

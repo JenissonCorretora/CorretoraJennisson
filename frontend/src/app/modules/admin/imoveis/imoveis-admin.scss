@@ -274,6 +274,16 @@
         min-height: 120px;
       }
 
+      input.type-input {
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: none;
+
+        &::-webkit-calendar-picker-indicator {
+          display: none;
+        }
+      }
+
       .field-hint {
         display: block;
         font-size: $font-size-xs;
