@@ -73,14 +73,16 @@ export class Login {
   private loginAuto(): void {
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
-        // Login bem-sucedido - o AuthService já redireciona para home
+        // Login bem-sucedido - redireciona para home ou returnUrl
         this.loading.set(false);
-        // Se houver returnUrl, usa ele, senão o AuthService redireciona para home
         const returnUrl = this.route.snapshot.queryParams['returnUrl'];
         if (returnUrl) {
           this.router.navigate([returnUrl]);
+        } else {
+          // O AuthService já redirecionou para home no handleLoginSuccess
+          // Mas garantimos que está na home
+          this.router.navigate(['/']);
         }
-        // Caso contrário, o AuthService já redirecionou para home
       },
       error: (error) => {
         this.handleLoginError(error);
@@ -94,14 +96,16 @@ export class Login {
   private loginAsAdmin(): void {
     this.authService.loginAdmin(this.email, this.password).subscribe({
       next: () => {
-        // Login bem-sucedido - o AuthService já redireciona para home
+        // Login bem-sucedido - redireciona para home ou returnUrl
         this.loading.set(false);
-        // Se houver returnUrl, usa ele, senão o AuthService redireciona para home
         const returnUrl = this.route.snapshot.queryParams['returnUrl'];
         if (returnUrl) {
           this.router.navigate([returnUrl]);
+        } else {
+          // O AuthService já redirecionou para home no handleLoginSuccess
+          // Mas garantimos que está na home
+          this.router.navigate(['/']);
         }
-        // Caso contrário, o AuthService já redirecionou para home
       },
       error: (error) => {
         this.handleLoginError(error);
@@ -115,14 +119,16 @@ export class Login {
   private loginAsUsuario(): void {
     this.authService.loginUsuario(this.email, this.password).subscribe({
       next: () => {
-        // Login bem-sucedido - o AuthService já redireciona para home
+        // Login bem-sucedido - redireciona para home ou returnUrl
         this.loading.set(false);
-        // Se houver returnUrl, usa ele, senão o AuthService redireciona para home
         const returnUrl = this.route.snapshot.queryParams['returnUrl'];
         if (returnUrl) {
           this.router.navigate([returnUrl]);
+        } else {
+          // O AuthService já redirecionou para home no handleLoginSuccess
+          // Mas garantimos que está na home
+          this.router.navigate(['/']);
         }
-        // Caso contrário, o AuthService já redirecionou para home
       },
       error: (error) => {
         this.handleLoginError(error);
@@ -138,14 +144,17 @@ export class Login {
 
     // Limpa qualquer token antigo que possa estar interferindo
     // Isso garante que não há tokens inválidos causando problemas
+    // Usa logoutWithoutRedirect para não redirecionar o usuário
     if (error.status === 401) {
       // Se for 401, pode ser que haja um token antigo inválido
-      // Limpa tokens para garantir estado limpo
-      this.authService.logout();
+      // Limpa tokens para garantir estado limpo, mas mantém na tela de login
+      this.authService.logoutWithoutRedirect();
       this.errorMessage.set('E-mail ou senha inválidos. Verifique suas credenciais.');
     } else if (error.status === 0) {
+      this.authService.logoutWithoutRedirect();
       this.errorMessage.set('Erro de conexão. Verifique se o servidor está rodando.');
     } else {
+      this.authService.logoutWithoutRedirect();
       this.errorMessage.set('Erro ao fazer login. Tente novamente mais tarde.');
     }
   }

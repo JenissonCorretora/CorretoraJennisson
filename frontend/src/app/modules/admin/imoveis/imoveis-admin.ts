@@ -6,6 +6,7 @@ import { forkJoin, of, switchMap, map, catchError, finalize } from 'rxjs';
 import { ImovelService, Imovel, StatusImovel, CreateImovelRequest, DEFAULT_TIPOS_IMOVEL } from '../../../services/imovel.service';
 import { ImagemImovelService } from '../../../services/imagem-imovel.service';
 import { AuthService } from '../../../services/auth.service';
+import { AlertService } from '../../../services/alert.service';
 
 @Component({
   selector: 'app-imoveis-admin',
@@ -61,7 +62,8 @@ export class ImoveisAdmin implements OnInit {
     private imovelService: ImovelService,
     private imagemImovelService: ImagemImovelService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
@@ -369,11 +371,17 @@ export class ImoveisAdmin implements OnInit {
    * Deleta imóvel
    */
   deletarImovel(imovel: Imovel): void {
-    if (!confirm(`Tem certeza que deseja excluir o imóvel "${imovel.titulo}"? Esta ação não pode ser desfeita.`)) {
-      return;
-    }
+    this.alertService.confirmDanger(
+      'Excluir Imóvel',
+      `Tem certeza que deseja excluir o imóvel "${imovel.titulo}"? Esta ação não pode ser desfeita.`,
+      'Sim, excluir',
+      'Cancelar'
+    ).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
 
-    this.loading.set(true);
+      this.loading.set(true);
 
     this.imovelService.delete(imovel.id).subscribe({
       next: () => {
@@ -396,17 +404,24 @@ export class ImoveisAdmin implements OnInit {
         this.errorMessage.set('Erro ao excluir imóvel. Tente novamente.');
       }
     });
+    });
   }
 
   /**
    * Deleta uma imagem específica
    */
   deletarImagem(imovelId: number, imagemId: number, index: number): void {
-    if (!confirm('Tem certeza que deseja excluir esta imagem?')) {
-      return;
-    }
+    this.alertService.confirmDanger(
+      'Excluir Imagem',
+      'Tem certeza que deseja excluir esta imagem?',
+      'Sim, excluir',
+      'Cancelar'
+    ).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
 
-    this.imagemImovelService.delete(imagemId).subscribe({
+      this.imagemImovelService.delete(imagemId).subscribe({
       next: () => {
         // Remove da lista de imagens existentes
         const imagens = [...this.imagensExistentes()];
@@ -437,6 +452,7 @@ export class ImoveisAdmin implements OnInit {
 
         this.errorMessage.set('Erro ao excluir imagem. Tente novamente.');
       }
+    });
     });
   }
 

@@ -1,6 +1,12 @@
 // Importar variáveis globais
 @use 'styles/variables' as *;
 
+// Importar estilos base do SweetAlert2
+@import 'sweetalert2/dist/sweetalert2.css';
+
+// Importar estilos customizados do SweetAlert2
+@import 'styles/sweetalert2-custom';
+
 /* Reset e Estilos Globais */
 * {
   margin: 0;

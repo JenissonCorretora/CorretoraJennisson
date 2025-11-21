@@ -2,6 +2,7 @@ import { Component, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -23,7 +24,8 @@ export class Navbar implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
@@ -62,11 +64,23 @@ export class Navbar implements OnInit, OnDestroy {
   }
 
   /**
-   * Ação de logout
+   * Ação de logout com confirmação
    */
   onLogout(): void {
     this.closeMenu();
-    this.authService.logout();
+
+    // Mostra popup de confirmação
+    this.alertService.confirm(
+      'Sair do Sistema',
+      'Tem certeza que deseja sair do sistema?',
+      'Sim, sair',
+      'Cancelar',
+      'question'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.authService.logout();
+      }
+    });
   }
 
   /**

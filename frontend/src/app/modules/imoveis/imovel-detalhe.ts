@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ImovelService, Imovel } from '../../services/imovel.service';
 import { FavoritoService } from '../../services/favorito.service';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-imovel-detalhe',
@@ -30,7 +31,8 @@ export class ImovelDetalhe implements OnInit {
     private router: Router,
     private imovelService: ImovelService,
     private favoritoService: FavoritoService,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertService: AlertService
   ) {
     this.isLoggedIn = this.authService.isAuthenticated;
     this.currentUser = this.authService.currentUser;
@@ -126,7 +128,7 @@ export class ImovelDetalhe implements OnInit {
                 this.favoritosIds.set(ids);
                 return;
               }
-              alert('Erro ao remover favorito.');
+              this.alertService.error('Erro', 'Erro ao remover favorito.');
             }
           });
         }
@@ -140,7 +142,7 @@ export class ImovelDetalhe implements OnInit {
         },
         error: (error) => {
           console.error('Erro ao adicionar favorito:', error);
-          alert('Erro ao adicionar favorito.');
+          this.alertService.error('Erro', 'Erro ao adicionar favorito.');
         }
       });
     }

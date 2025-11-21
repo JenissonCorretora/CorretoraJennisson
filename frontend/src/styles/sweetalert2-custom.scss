@@ -1,0 +1,135 @@
+// Customização do SweetAlert2 para combinar com o layout do sistema
+@use 'sass:color';
+@use 'variables' as *;
+
+// Customizações
+.swal2-popup-custom {
+  font-family: $font-family-base;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-xl;
+  padding: 2rem;
+}
+
+.swal2-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $text-dark;
+  margin-bottom: 1rem;
+}
+
+.swal2-content {
+  font-size: $font-size-base;
+  color: $text-color;
+  line-height: 1.6;
+}
+
+.swal2-confirm-custom,
+.swal2-confirm {
+  background-color: $primary-color !important;
+  border: none !important;
+  border-radius: $border-radius !important;
+  padding: 0.75rem 2rem !important;
+  font-size: $font-size-base !important;
+  font-weight: $font-weight-medium !important;
+  transition: $transition !important;
+  box-shadow: $shadow-sm !important;
+
+      &:hover {
+        background-color: color.adjust($primary-color, $lightness: -5%) !important;
+        box-shadow: $shadow !important;
+        transform: translateY(-1px);
+      }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.swal2-cancel-custom,
+.swal2-cancel {
+  background-color: #6c757d !important;
+  border: none !important;
+  border-radius: $border-radius !important;
+  padding: 0.75rem 2rem !important;
+  font-size: $font-size-base !important;
+  font-weight: $font-weight-medium !important;
+  transition: $transition !important;
+  box-shadow: $shadow-sm !important;
+
+      &:hover {
+        background-color: color.adjust(#6c757d, $lightness: -5%) !important;
+        box-shadow: $shadow !important;
+        transform: translateY(-1px);
+      }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Ícones customizados
+.swal2-icon {
+  &.swal2-success {
+    border-color: $success-color;
+    color: $success-color;
+  }
+
+  &.swal2-error {
+    border-color: $danger-color;
+    color: $danger-color;
+  }
+
+  &.swal2-warning {
+    border-color: $warning-color;
+    color: $warning-color;
+  }
+
+  &.swal2-info {
+    border-color: $info-color;
+    color: $info-color;
+  }
+
+  &.swal2-question {
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+}
+
+// Animação suave
+.swal2-popup {
+  animation: swal2-show 0.3s ease-out;
+}
+
+@keyframes swal2-show {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Responsividade
+@media (max-width: $breakpoint-sm) {
+  .swal2-popup {
+    width: 90% !important;
+    padding: 1.5rem !important;
+  }
+
+  .swal2-title {
+    font-size: $font-size-xl !important;
+  }
+
+  .swal2-content {
+    font-size: $font-size-sm !important;
+  }
+
+  .swal2-confirm,
+  .swal2-cancel {
+    padding: 0.625rem 1.5rem !important;
+    font-size: $font-size-sm !important;
+  }
+}
+

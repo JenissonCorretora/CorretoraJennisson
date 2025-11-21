@@ -5,6 +5,7 @@ import { Router, RouterLink, ActivatedRoute, ParamMap } from '@angular/router';
 import { ImovelService, Imovel, StatusImovel, DEFAULT_TIPOS_IMOVEL } from '../../services/imovel.service';
 import { FavoritoService } from '../../services/favorito.service';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-imoveis',
@@ -51,7 +52,8 @@ export class Imoveis implements OnInit {
     private favoritoService: FavoritoService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private alertService: AlertService
   ) {
     // Inicializa signals de autenticação
     this.isLoggedIn = this.authService.isAuthenticated;
@@ -310,7 +312,7 @@ export class Imoveis implements OnInit {
                 this.favoritosIds.set(ids);
                 return;
               }
-              alert('Erro ao remover dos favoritos. Tente novamente.');
+              this.alertService.error('Erro', 'Erro ao remover dos favoritos. Tente novamente.');
             }
           });
         },
@@ -333,7 +335,7 @@ export class Imoveis implements OnInit {
         },
         error: (error) => {
           console.error('Erro ao adicionar favorito:', error);
-          alert('Erro ao adicionar aos favoritos. Tente novamente.');
+          this.alertService.error('Erro', 'Erro ao adicionar aos favoritos. Tente novamente.');
         }
       });
     }

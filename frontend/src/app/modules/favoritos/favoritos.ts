@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FavoritoService, Favorito } from '../../services/favorito.service';
 import { ImovelService, Imovel } from '../../services/imovel.service';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 
 @Component({
   selector: 'app-favoritos',
@@ -27,7 +28,8 @@ export class Favoritos implements OnInit {
     private favoritoService: FavoritoService,
     private imovelService: ImovelService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private alertService: AlertService
   ) {
     // Inicializa signals de autenticação
     this.isLoggedIn = this.authService.isAuthenticated;
@@ -128,24 +130,32 @@ export class Favoritos implements OnInit {
     const user = this.currentUser();
     if (!user) return;
 
-    if (!confirm(`Tem certeza que deseja remover "${imovel.titulo}" dos seus favoritos?`)) {
-      return;
-    }
-
-    // Encontra o favorito correspondente
-    const favorito = this.favoritos().find(f => f.imovel_Id === imovel.id);
-    if (!favorito) return;
-
-    this.favoritoService.remove(favorito.id).subscribe({
-      next: () => {
-        // Atualiza a lista local
-        this.favoritos.set(this.favoritos().filter(f => f.id !== favorito.id));
-        this.imoveis.set(this.imoveis().filter(i => i.id !== imovel.id));
-      },
-      error: (error) => {
-        console.error('Erro ao remover favorito:', error);
-        alert('Erro ao remover dos favoritos. Tente novamente.');
+    this.alertService.confirm(
+      'Remover dos Favoritos',
+      `Tem certeza que deseja remover "${imovel.titulo}" dos seus favoritos?`,
+      'Sim, remover',
+      'Cancelar',
+      'question'
+    ).then((result) => {
+      if (!result.isConfirmed) {
+        return;
       }
+
+      // Encontra o favorito correspondente
+      const favorito = this.favoritos().find(f => f.imovel_Id === imovel.id);
+      if (!favorito) return;
+
+      this.favoritoService.remove(favorito.id).subscribe({
+        next: () => {
+          // Atualiza a lista local
+          this.favoritos.set(this.favoritos().filter(f => f.id !== favorito.id));
+          this.imoveis.set(this.imoveis().filter(i => i.id !== imovel.id));
+        },
+        error: (error) => {
+          console.error('Erro ao remover favorito:', error);
+          this.alertService.error('Erro', 'Erro ao remover dos favoritos. Tente novamente.');
+        }
+      });
     });
   }
 
@@ -153,29 +163,37 @@ export class Favoritos implements OnInit {
    * Limpa todos os favoritos
    */
   limparFavoritos(): void {
-    if (!confirm('Tem certeza que deseja remover todos os imóveis dos seus favoritos?')) {
-      return;
-    }
+    this.alertService.confirmDanger(
+      'Limpar Todos os Favoritos',
+      'Tem certeza que deseja remover todos os imóveis dos seus favoritos?',
+      'Sim, limpar tudo',
+      'Cancelar'
+    ).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
 
-    const user = this.currentUser();
-    if (!user) return;
+      const user = this.currentUser();
+      if (!user) return;
 
-    this.loading.set(true);
+      this.loading.set(true);
 
-    // Remove todos os favoritos
-    const favoritos = this.favoritos();
-    const removals = favoritos.map(favorito =>
-      this.favoritoService.remove(favorito.id).toPromise()
-    );
+      // Remove todos os favoritos
+      const favoritos = this.favoritos();
+      const removals = favoritos.map(favorito =>
+        this.favoritoService.remove(favorito.id).toPromise()
+      );
 
-    Promise.all(removals).then(() => {
-      this.favoritos.set([]);
-      this.imoveis.set([]);
-      this.loading.set(false);
-    }).catch(error => {
-      console.error('Erro ao remover favoritos:', error);
-      alert('Erro ao remover favoritos. Tente novamente.');
-      this.loading.set(false);
+      Promise.all(removals).then(() => {
+        this.favoritos.set([]);
+        this.imoveis.set([]);
+        this.loading.set(false);
+        this.alertService.success('Sucesso', 'Todos os favoritos foram removidos.');
+      }).catch(error => {
+        console.error('Erro ao remover favoritos:', error);
+        this.alertService.error('Erro', 'Erro ao remover favoritos. Tente novamente.');
+        this.loading.set(false);
+      });
     });
   }
 
