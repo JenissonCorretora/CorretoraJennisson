@@ -72,15 +72,19 @@ export class FavoritoService {
   /**
    * Remove um favorito por ID (requer autenticação)
    */
-  remove(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  remove(id: number): Observable<string> {
+    return this.http.delete(`${this.baseUrl}/${id}`, {
+      responseType: 'text'
+    }) as Observable<string>;
   }
 
   /**
    * Remove um favorito por usuário e imóvel (requer autenticação)
    */
-  removeByUsuarioAndImovel(usuarioId: number, imovelId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/usuario/${usuarioId}/imovel/${imovelId}`);
+  removeByUsuarioAndImovel(usuarioId: number, imovelId: number): Observable<string> {
+    return this.http.delete(`${this.baseUrl}/usuario/${usuarioId}/imovel/${imovelId}`, {
+      responseType: 'text'
+    }) as Observable<string>;
   }
 
   /**

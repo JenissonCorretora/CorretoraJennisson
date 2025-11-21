@@ -304,6 +304,12 @@ export class Imoveis implements OnInit {
             },
             error: (error) => {
               console.error('Erro ao remover favorito:', error);
+              if (error.status === 200 || error.statusText === 'OK') {
+                const ids = new Set(this.favoritosIds());
+                ids.delete(imovel.id);
+                this.favoritosIds.set(ids);
+                return;
+              }
               alert('Erro ao remover dos favoritos. Tente novamente.');
             }
           });

@@ -117,6 +117,16 @@ export class ImovelDetalhe implements OnInit {
               const ids = new Set(this.favoritosIds());
               ids.delete(imovel.id);
               this.favoritosIds.set(ids);
+            },
+            error: (error) => {
+              console.error('Erro ao remover favorito:', error);
+              if (error.status === 200 || error.statusText === 'OK') {
+                const ids = new Set(this.favoritosIds());
+                ids.delete(imovel.id);
+                this.favoritosIds.set(ids);
+                return;
+              }
+              alert('Erro ao remover favorito.');
             }
           });
         }
@@ -127,6 +137,10 @@ export class ImovelDetalhe implements OnInit {
           const ids = new Set(this.favoritosIds());
           ids.add(imovel.id);
           this.favoritosIds.set(ids);
+        },
+        error: (error) => {
+          console.error('Erro ao adicionar favorito:', error);
+          alert('Erro ao adicionar favorito.');
         }
       });
     }
