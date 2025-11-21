@@ -1,11 +1,11 @@
 // Importar variáveis globais
 @use 'styles/variables' as *;
 
-// Importar estilos base do SweetAlert2
-@import 'sweetalert2/dist/sweetalert2.css';
-
 // Importar estilos customizados do SweetAlert2
-@import 'styles/sweetalert2-custom';
+@use 'styles/sweetalert2-custom';
+
+// Importar estilos base do SweetAlert2 (biblioteca externa, deve usar @import)
+@import 'sweetalert2/dist/sweetalert2.css';
 
 /* Reset e Estilos Globais */
 * {

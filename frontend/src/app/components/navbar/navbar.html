@@ -61,6 +61,14 @@
 
         <!-- Identificador Admin, Botão Favoritos ou Botão Entrar -->
         <ng-container *ngIf="isAdmin()">
+          <a routerLink="/chat"
+             class="btn btn-outline"
+             routerLinkActive="active"
+             title="Chat com Clientes"
+             aria-label="Abrir chat com clientes">
+            <span class="material-icons">chat</span>
+            <span class="btn-text">Chat</span>
+          </a>
           <div class="admin-badge"
                title="Você está logado como administrador - {{ getUserEmail() }}"
                aria-label="Status de administrador">

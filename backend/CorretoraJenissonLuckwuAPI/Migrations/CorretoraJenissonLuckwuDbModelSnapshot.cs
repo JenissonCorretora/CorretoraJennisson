@@ -203,6 +203,43 @@ namespace CorretoraJenissonLuckwuAPI.Migrations
                     b.ToTable("Imoveis");
                 });
 
+            modelBuilder.Entity("CorretoraJenissonLuckwuAPI.Models.Entities.Mensagem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("Administrador_Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Conteudo")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime>("Created_At")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Lida")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Remetente_Tipo")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Usuario_Id")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Administrador_Id");
+
+                    b.HasIndex("Usuario_Id");
+
+                    b.ToTable("Mensagens");
+                });
+
             modelBuilder.Entity("CorretoraJenissonLuckwuAPI.Models.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -264,6 +301,23 @@ namespace CorretoraJenissonLuckwuAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Imovel");
+                });
+
+            modelBuilder.Entity("CorretoraJenissonLuckwuAPI.Models.Entities.Mensagem", b =>
+                {
+                    b.HasOne("CorretoraJenissonLuckwuAPI.Models.Entities.Administrador", "Administrador")
+                        .WithMany()
+                        .HasForeignKey("Administrador_Id");
+
+                    b.HasOne("CorretoraJenissonLuckwuAPI.Models.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("Usuario_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Administrador");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("CorretoraJenissonLuckwuAPI.Models.Entities.Imovel", b =>

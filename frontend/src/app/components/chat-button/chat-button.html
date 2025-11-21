@@ -1,0 +1,13 @@
+@if (shouldShow()) {
+<button class="chat-button"
+        (click)="toggleChat()"
+        [class.has-unread]="unreadCount() > 0"
+        title="Abrir chat de suporte"
+        aria-label="Abrir chat">
+  <span class="material-icons">chat</span>
+  @if (unreadCount() > 0) {
+  <span class="badge">{{ unreadCount() }}</span>
+  }
+</button>
+}
+

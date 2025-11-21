@@ -1,15 +1,22 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { UsuarioService, Usuario } from '../../services/usuario.service';
+import { ChatService } from '../../services/chat.service';
+import { SignalRService } from '../../services/signalr.service';
+import { AlertService } from '../../services/alert.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-contato',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './contato.html',
   styleUrl: './contato.scss'
 })
-export class Contato {
+export class Contato implements OnInit {
   // Dados do formulário
   name = '';
   email = '';
@@ -21,16 +28,14 @@ export class Contato {
   loading = signal(false);
   errorMessage = signal('');
   successMessage = signal('');
-  // TODO: Conectar com serviço de autenticação
-  // Para testar estado logado, mude para: isLoggedIn = signal(true);
   isLoggedIn = signal(false);
 
-  // Dados do usuário logado (simulado)
-  loggedUser = {
-    name: 'João Silva',
-    email: 'joao@email.com',
-    phone: '(11) 98765-4321'
-  };
+  // Dados do usuário logado
+  loggedUser = signal<{
+    name: string;
+    email: string;
+    phone: string;
+  } | null>(null);
 
   // Informações de contato do corretor
   corretor = {
@@ -43,10 +48,71 @@ export class Contato {
     horario: 'Segunda a Sexta: 9h às 18h'
   };
 
+  constructor(
+    private authService: AuthService,
+    private usuarioService: UsuarioService,
+    private chatService: ChatService,
+    private signalRService: SignalRService,
+    private alertService: AlertService
+  ) {
+    // Observa mudanças no estado de autenticação
+    effect(() => {
+      const isAuth = this.authService.isAuthenticated();
+      this.isLoggedIn.set(isAuth);
+
+      if (isAuth) {
+        this.loadUserData();
+      } else {
+        this.loggedUser.set(null);
+      }
+    });
+  }
+
+  async ngOnInit() {
+    // Verifica se está logado ao inicializar
+    const isAuth = this.authService.isAuthenticated();
+    this.isLoggedIn.set(isAuth);
+
+    if (isAuth) {
+      await this.loadUserData();
+    }
+  }
+
   /**
-   * Envia o formulário de contato
+   * Carrega dados do usuário logado
    */
-  onSubmit(): void {
+  private async loadUserData() {
+    try {
+      const currentUser = this.authService.getCurrentUser();
+      if (!currentUser) return;
+
+      // Busca dados completos do usuário
+            const usuario = await firstValueFrom(this.usuarioService.getById(currentUser.userId));
+      if (usuario) {
+        // Extrai nome do email (parte antes do @) ou usa email
+        const nameFromEmail = usuario.email?.split('@')[0] || 'Usuário';
+        const formattedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+
+        this.loggedUser.set({
+          name: formattedName,
+          email: usuario.email || '',
+          phone: usuario.telefone || ''
+        });
+
+        // Preenche automaticamente os campos
+        this.email = usuario.email || '';
+        this.phone = usuario.telefone || '';
+        this.name = formattedName;
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados do usuário:', error);
+    }
+  }
+
+  /**
+   * Envia o formulário de contato através do sistema de chat
+   */
+  async onSubmit(): Promise<void> {
     // Limpa mensagens anteriores
     this.errorMessage.set('');
     this.successMessage.set('');
@@ -76,33 +142,88 @@ export class Contato {
       }
     }
 
-    // Simula loading
     this.loading.set(true);
 
-    // TODO: Implementar chamada para API
-    setTimeout(() => {
-      this.loading.set(false);
-
-      const contactData = this.isLoggedIn()
+    try {
+      // Formata a mensagem incluindo dados do contato e assunto
+      const userData = this.isLoggedIn() && this.loggedUser()
         ? {
-          name: this.loggedUser.name,
-          email: this.loggedUser.email,
-          phone: this.loggedUser.phone,
-          subject: this.subject,
-          message: this.message
-        }
+            name: this.loggedUser()!.name,
+            email: this.loggedUser()!.email,
+            phone: this.loggedUser()!.phone
+          }
         : {
-          name: this.name,
-          email: this.email,
-          phone: this.phone,
-          subject: this.subject,
-          message: this.message
-        };
+            name: this.name,
+            email: this.email,
+            phone: this.phone
+          };
 
-      console.log('Contato:', contactData);
+      // Monta mensagem formatada
+      let formattedMessage = `Assunto: ${this.subject}\n\n`;
+      formattedMessage += `${this.message}\n\n`;
+      formattedMessage += `---\n`;
+      formattedMessage += `Contato: ${userData.name}\n`;
+      formattedMessage += `E-mail: ${userData.email}\n`;
+      if (userData.phone) {
+        formattedMessage += `Telefone: ${userData.phone}\n`;
+      }
 
-      // Simula sucesso
-      this.successMessage.set('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+      // Verifica se o usuário está logado
+      if (!this.isLoggedIn()) {
+        // Usuário não logado: orienta a fazer login
+        this.errorMessage.set('Para enviar mensagens através do chat, é necessário estar logado. Por favor, faça login ou crie uma conta. Você também pode entrar em contato via WhatsApp, telefone ou e-mail usando os botões acima.');
+        this.loading.set(false);
+        return;
+      }
+
+      // Usuário logado: envia via SignalR (chat)
+      let messageSent = false;
+
+      try {
+        // Inicia conexão SignalR se não estiver conectado
+        if (!this.signalRService.isConnected()) {
+          try {
+            await this.signalRService.startConnection();
+          } catch (connError: any) {
+            console.warn('Erro ao conectar SignalR, tentando via REST:', connError);
+            // Se falhar a conexão, tenta via REST diretamente
+            await firstValueFrom(this.chatService.create({ conteudo: formattedMessage }));
+            messageSent = true;
+          }
+        }
+
+        // Se ainda não enviou, tenta via SignalR
+        if (!messageSent) {
+          try {
+            console.log('Enviando mensagem via SignalR...');
+            await this.signalRService.sendMessage(formattedMessage);
+            console.log('Mensagem enviada via SignalR com sucesso');
+            messageSent = true;
+          } catch (signalRError: any) {
+            console.warn('Erro ao enviar via SignalR, tentando via REST:', signalRError);
+            // Se falhar via SignalR, tenta via REST API
+            try {
+              const mensagemCriada = await firstValueFrom(this.chatService.create({ conteudo: formattedMessage }));
+              console.log('Mensagem enviada via REST:', mensagemCriada);
+              messageSent = true;
+              // Nota: Mensagens via REST não notificam em tempo real via SignalR
+              // A lista será atualizada no próximo refresh (30s) ou quando o admin recarregar
+            } catch (restError: any) {
+              console.error('Erro ao enviar via REST:', restError);
+              throw restError;
+            }
+          }
+        }
+      } catch (error: any) {
+        // Se ambos falharem, lança o erro
+        throw error;
+      }
+
+      // Sucesso
+      if (messageSent) {
+        this.successMessage.set('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+        this.alertService.success('Mensagem enviada!', 'Sua mensagem foi enviada com sucesso. Responderemos em breve.');
+      }
 
       // Limpa apenas os campos editáveis
       this.subject = '';
@@ -112,7 +233,13 @@ export class Contato {
         this.email = '';
         this.phone = '';
       }
-    }, 2000);
+    } catch (error: any) {
+      console.error('Erro ao enviar mensagem:', error);
+      this.errorMessage.set('Erro ao enviar mensagem. Tente novamente mais tarde.');
+      this.alertService.error('Erro ao enviar mensagem', 'Tente novamente mais tarde.');
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   /**

@@ -1,0 +1,102 @@
+<div class="chat-window">
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="chat-header-content">
+      @if (isAdmin() && usuarioId !== undefined) {
+      <!-- Admin com conversa selecionada - Dados do cliente como no WhatsApp -->
+      <div class="chat-header-user">
+        <span class="material-icons">account_circle</span>
+        <div class="chat-header-user-info">
+          <h3>{{ currentUsuarioNome() }}</h3>
+          <div class="chat-header-dados">
+            @if (currentUsuarioEmail()) {
+            <p class="chat-header-email">{{ currentUsuarioEmail() }}</p>
+            }
+            @if (currentUsuarioTelefone()) {
+            <p class="chat-header-telefone">{{ currentUsuarioTelefone() }}</p>
+            }
+          </div>
+        </div>
+      </div>
+      } @else {
+      <!-- Admin sem seleção ou usuário comum -->
+      <span class="material-icons">chat</span>
+      <h3>{{ isAdmin() ? 'Chat com Clientes' : 'Chat de Suporte' }}</h3>
+      }
+      @if (isAdmin() && unreadCount() > 0 && usuarioId === undefined) {
+      <span class="badge">{{ unreadCount() }}</span>
+      }
+    </div>
+    @if (!isConnected()) {
+    <div class="connection-status">
+      <span class="material-icons">sync</span>
+      <span>Reconectando...</span>
+    </div>
+    }
+  </div>
+
+  <!-- Messages Container -->
+  <div class="chat-messages" #messagesContainer>
+    @if (loading()) {
+    <div class="loading-state">
+      <span class="material-icons">hourglass_top</span>
+      <p>Carregando mensagens...</p>
+    </div>
+    } @else if (messages().length === 0) {
+    <div class="empty-state">
+      <span class="material-icons">chat_bubble_outline</span>
+      @if (isAdmin() && usuarioId === undefined) {
+      <p>Selecione uma conversa</p>
+      <small>Escolha uma conversa na lista ao lado para começar</small>
+      } @else {
+      <p>Nenhuma mensagem ainda.</p>
+      <small>Seja o primeiro a enviar uma mensagem!</small>
+      }
+    </div>
+    } @else {
+    @for (mensagem of messages(); track mensagem.id) {
+    <div class="message"
+         [class.message-usuario]="isUsuarioMessage(mensagem)"
+         [class.message-admin]="!isUsuarioMessage(mensagem)"
+         [class.message-unread]="!mensagem.lida && !isUsuarioMessage(mensagem)">
+      <div class="message-content">
+        <div class="message-header">
+          <span class="message-sender">
+            {{ getSenderName(mensagem) }}
+          </span>
+          <span class="message-time">{{ formatDate(mensagem.created_At) }}</span>
+          @if (!mensagem.lida && !isUsuarioMessage(mensagem) && isAdmin()) {
+          <button class="btn-mark-read"
+                  (click)="markAsRead(mensagem.id)"
+                  title="Marcar como lida">
+            <span class="material-icons">check_circle_outline</span>
+          </button>
+          }
+        </div>
+        <div class="message-text">{{ getCleanMessageText(mensagem.conteudo) }}</div>
+      </div>
+    </div>
+    }
+    }
+  </div>
+
+  <!-- Input Area -->
+  <div class="chat-input">
+    <label for="chat-message-input" class="sr-only">Digite sua mensagem</label>
+    <input type="text"
+           id="chat-message-input"
+           [(ngModel)]="newMessage"
+           (keydown.enter)="sendMessage()"
+           [placeholder]="isAdmin() && usuarioId === undefined ? 'Selecione uma conversa para enviar mensagem' : 'Digite sua mensagem...'"
+           [disabled]="!isConnected() || loading() || (isAdmin() && usuarioId === undefined)"
+           aria-label="Campo de mensagem do chat"
+           maxlength="2000" />
+    <button class="btn-send"
+            (click)="sendMessage()"
+            [disabled]="!isConnected() || loading() || !newMessage().trim() || (isAdmin() && usuarioId === undefined)"
+            title="Enviar mensagem">
+      <span class="material-icons">send</span>
+    </button>
+  </div>
+</div>
+

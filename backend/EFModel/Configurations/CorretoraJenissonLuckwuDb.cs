@@ -17,6 +17,7 @@ namespace CorretoraJenissonLuckwuAPI.EFModel.Configurations
         public DbSet<Imovel> Imoveis { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<ConteudoSite> ConteudosSite { get; set; }
+        public DbSet<Mensagem> Mensagens { get; set; }
         #endregion
     }
 }

@@ -54,6 +54,21 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
+
+    // Configuração para SignalR
+    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization(options =>
@@ -82,6 +97,7 @@ builder.Services.AddScoped<UsuarioRepository>();
 builder.Services.AddScoped<ImagemImovelRepository>();
 builder.Services.AddScoped<FavoritoRepository>();
 builder.Services.AddScoped<ConteudoSiteRepository>();
+builder.Services.AddScoped<MensagemRepository>();
 
 // Services
 builder.Services.AddScoped<AdministradorService>();
@@ -93,6 +109,10 @@ builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ConteudoSiteService>();
 builder.Services.AddScoped<FileStorageService>();
+builder.Services.AddScoped<MensagemService>();
+
+// SignalR
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -113,5 +133,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// SignalR Hub
+app.MapHub<CorretoraJenissonLuckwuAPI.Hubs.ChatHub>("/chathub");
 
 app.Run();

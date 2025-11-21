@@ -1,0 +1,90 @@
+@use '../../../styles/variables' as *;
+
+.chat-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: $secondary-color;
+  color: white;
+  border: none;
+  box-shadow: $shadow-lg;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: $transition;
+  position: relative;
+
+  &:hover {
+    background: $active-color;
+    transform: scale(1.05);
+    box-shadow: $shadow-xl;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  .material-icons {
+    font-size: 28px;
+  }
+
+  .badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: $danger-color;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    border: 2px solid white;
+    animation: pulse 2s infinite;
+  }
+
+  &.has-unread {
+    animation: bounce 1s infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+// Responsividade
+@media (max-width: $breakpoint-sm) {
+  .chat-button {
+    width: 56px;
+    height: 56px;
+    bottom: 16px;
+    right: 16px;
+
+    .material-icons {
+      font-size: 24px;
+    }
+  }
+}
+

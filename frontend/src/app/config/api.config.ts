@@ -15,7 +15,9 @@ export const API_CONFIG = {
     imagens: '/imagemimovel',
     usuarios: '/usuario',
     administradores: '/administrador',
-    conteudoSite: '/conteudosite'
+    conteudoSite: '/conteudosite',
+    mensagens: '/mensagem',
+    chatHub: 'http://localhost:5166/chathub'
   }
 };
 

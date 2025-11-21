@@ -93,18 +93,28 @@
             (ngSubmit)="onSubmit()">
 
         <!-- Informação do Usuário Logado -->
-        @if (isLoggedIn()) {
+        @if (isLoggedIn() && loggedUser()) {
         <div class="user-info-box">
           <span class="material-icons">account_circle</span>
           <div class="user-details">
-            <p><strong>Enviando como:</strong> {{ loggedUser.name }}</p>
-            <p class="user-contact">{{ loggedUser.email }} • {{ loggedUser.phone }}</p>
+            <p><strong>Enviando como:</strong> {{ loggedUser()!.name }}</p>
+            <p class="user-contact">{{ loggedUser()!.email }}@if (loggedUser()!.phone) { • {{ loggedUser()!.phone }} }</p>
           </div>
         </div>
         }
 
         <!-- Campos para Usuário NÃO Logado -->
         @if (!isLoggedIn()) {
+        <!-- Aviso para usuário não logado -->
+        <div class="alert alert-info"
+             role="alert">
+          <span class="material-icons">info</span>
+          <div>
+            <p><strong>Para enviar mensagens via chat, é necessário estar logado.</strong></p>
+            <p>Faça <a routerLink="/login">login</a> ou <a routerLink="/register">crie uma conta</a> para usar o chat. Você também pode entrar em contato via WhatsApp, telefone ou e-mail usando os botões acima.</p>
+          </div>
+        </div>
+
         <!-- Nome -->
         <div class="form-group">
           <label for="name">

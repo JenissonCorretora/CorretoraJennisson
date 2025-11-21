@@ -1,6 +1,6 @@
 // Customização do SweetAlert2 para combinar com o layout do sistema
 @use 'sass:color';
-@use 'variables' as *;
+@use '../styles/variables' as *;
 
 // Customizações
 .swal2-popup-custom {
