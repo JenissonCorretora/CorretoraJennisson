@@ -60,20 +60,20 @@
          [class.message-admin]="!isUsuarioMessage(mensagem)"
          [class.message-unread]="!mensagem.lida && !isUsuarioMessage(mensagem)">
       <div class="message-content">
-        <div class="message-header">
-          <span class="message-sender">
-            {{ getSenderName(mensagem) }}
-          </span>
-          <span class="message-time">{{ formatDate(mensagem.created_At) }}</span>
-          @if (!mensagem.lida && !isUsuarioMessage(mensagem) && isAdmin()) {
-          <button class="btn-mark-read"
-                  (click)="markAsRead(mensagem.id)"
-                  title="Marcar como lida">
-            <span class="material-icons">check_circle_outline</span>
-          </button>
-          }
+        <div class="message-sender-name">{{ getSenderName(mensagem) }}</div>
+        <div class="message-body">
+          <div class="message-text">{{ getCleanMessageText(mensagem.conteudo) }}</div>
+          <div class="message-footer">
+            <span class="message-time">{{ formatDate(mensagem.created_At) }}</span>
+            @if (!mensagem.lida && !isUsuarioMessage(mensagem) && isAdmin()) {
+            <button class="btn-mark-read"
+                    (click)="markAsRead(mensagem.id)"
+                    title="Marcar como lida">
+              <span class="material-icons">check_circle_outline</span>
+            </button>
+            }
+          </div>
         </div>
-        <div class="message-text">{{ getCleanMessageText(mensagem.conteudo) }}</div>
       </div>
     </div>
     }

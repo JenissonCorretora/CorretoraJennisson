@@ -2,6 +2,7 @@ using CorretoraJenissonLuckwuAPI.Models.DTOs;
 using CorretoraJenissonLuckwuAPI.Models.Entities;
 using CorretoraJenissonLuckwuAPI.Repository;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace CorretoraJenissonLuckwuAPI.Services
 {
@@ -17,25 +18,55 @@ namespace CorretoraJenissonLuckwuAPI.Services
         public async Task<MensagemDTO?> GetById(int id)
         {
             var mensagem = await _repository.GetByIdAsync(id);
-            return mensagem != null ? MapToDTO(mensagem) : null;
+            if (mensagem == null) return null;
+
+            // Para GetById, precisamos buscar todas as mensagens do mesmo usuário para extrair o nome
+            var todasMensagensUsuario = await _repository.GetByUsuarioIdAsync(mensagem.Usuario_Id);
+            return MapToDTO(mensagem, todasMensagensUsuario);
         }
 
         public async Task<List<MensagemDTO>> GetByUsuarioId(int usuarioId)
         {
             var mensagens = await _repository.GetByUsuarioIdAsync(usuarioId);
-            return mensagens.Select(MapToDTO).ToList();
+            return mensagens.Select(m => MapToDTO(m, mensagens)).ToList();
         }
 
         public async Task<List<MensagemDTO>> GetAll()
         {
             var mensagens = await _repository.GetAllAsync();
-            return mensagens.Select(MapToDTO).ToList();
+            // Agrupa mensagens por usuário para extrair o nome corretamente
+            var mensagensPorUsuario = mensagens.GroupBy(m => m.Usuario_Id);
+            var resultado = new List<MensagemDTO>();
+
+            foreach (var grupo in mensagensPorUsuario)
+            {
+                var mensagensDoUsuario = grupo.ToList();
+                foreach (var mensagem in mensagensDoUsuario)
+                {
+                    resultado.Add(MapToDTO(mensagem, mensagensDoUsuario));
+                }
+            }
+
+            return resultado;
         }
 
         public async Task<List<MensagemDTO>> GetNaoLidas()
         {
             var mensagens = await _repository.GetNaoLidasAsync();
-            return mensagens.Select(MapToDTO).ToList();
+            // Agrupa mensagens por usuário para extrair o nome corretamente
+            var mensagensPorUsuario = mensagens.GroupBy(m => m.Usuario_Id);
+            var resultado = new List<MensagemDTO>();
+
+            foreach (var grupo in mensagensPorUsuario)
+            {
+                var mensagensDoUsuario = grupo.ToList();
+                foreach (var mensagem in mensagensDoUsuario)
+                {
+                    resultado.Add(MapToDTO(mensagem, mensagensDoUsuario));
+                }
+            }
+
+            return resultado;
         }
 
         public async Task<int> GetCountNaoLidas()
@@ -46,7 +77,9 @@ namespace CorretoraJenissonLuckwuAPI.Services
         public async Task<MensagemDTO> Add(Mensagem mensagem)
         {
             var result = await _repository.AddAsync(mensagem);
-            return MapToDTO(result);
+            // Busca todas as mensagens do usuário para extrair o nome
+            var todasMensagensUsuario = await _repository.GetByUsuarioIdAsync(mensagem.Usuario_Id);
+            return MapToDTO(result, todasMensagensUsuario);
         }
 
         public async Task<bool> MarkAsRead(int id)
@@ -54,13 +87,52 @@ namespace CorretoraJenissonLuckwuAPI.Services
             return await _repository.MarkAsReadAsync(id);
         }
 
-        private MensagemDTO MapToDTO(Mensagem mensagem)
+        /// <summary>
+        /// Mapeia uma entidade Mensagem para DTO, incluindo o nome do usuário extraído das mensagens
+        /// </summary>
+        private MensagemDTO MapToDTO(Mensagem mensagem, List<Mensagem>? todasMensagensUsuario = null)
         {
+            // Extrai o nome do usuário das mensagens
+            string? usuarioNome = null;
+            
+            if (todasMensagensUsuario != null && todasMensagensUsuario.Any())
+            {
+                // Busca o nome na primeira mensagem do tipo Usuario que contenha "Contato:"
+                var primeiraMensagemComNome = todasMensagensUsuario
+                    .Where(m => m.Remetente_Tipo == RemetenteTipo.Usuario)
+                    .OrderBy(m => m.Created_At)
+                    .FirstOrDefault(m => !string.IsNullOrEmpty(m.Conteudo) && 
+                                         m.Conteudo.Contains("Contato:", StringComparison.OrdinalIgnoreCase));
+
+                if (primeiraMensagemComNome != null)
+                {
+                    usuarioNome = ExtrairNomeDaMensagem(primeiraMensagemComNome.Conteudo);
+                }
+
+                // Se não encontrou na primeira mensagem, tenta extrair da mensagem atual
+                if (string.IsNullOrEmpty(usuarioNome) && mensagem.Remetente_Tipo == RemetenteTipo.Usuario)
+                {
+                    usuarioNome = ExtrairNomeDaMensagem(mensagem.Conteudo);
+                }
+            }
+            else if (mensagem.Remetente_Tipo == RemetenteTipo.Usuario)
+            {
+                // Tenta extrair da própria mensagem se não tiver acesso às outras
+                usuarioNome = ExtrairNomeDaMensagem(mensagem.Conteudo);
+            }
+
+            // Se ainda não encontrou o nome, usa o email como fallback
+            if (string.IsNullOrEmpty(usuarioNome) && !string.IsNullOrEmpty(mensagem.Usuario?.Email))
+            {
+                usuarioNome = CapitalizeFirst(mensagem.Usuario.Email.Split('@')[0]);
+            }
+
             return new MensagemDTO
             {
                 Id = mensagem.Id,
                 Usuario_Id = mensagem.Usuario_Id,
                 Usuario_Email = mensagem.Usuario?.Email,
+                Usuario_Nome = usuarioNome,
                 Administrador_Id = mensagem.Administrador_Id,
                 Administrador_Nome = mensagem.Administrador?.Nome,
                 Conteudo = mensagem.Conteudo,
@@ -68,6 +140,36 @@ namespace CorretoraJenissonLuckwuAPI.Services
                 Lida = mensagem.Lida,
                 Created_At = mensagem.Created_At
             };
+        }
+
+        /// <summary>
+        /// Extrai o nome do usuário da mensagem procurando por "Contato: [nome]"
+        /// </summary>
+        private string? ExtrairNomeDaMensagem(string conteudo)
+        {
+            if (string.IsNullOrWhiteSpace(conteudo))
+                return null;
+
+            // Procura por "Contato: [nome]" na mensagem
+            var match = Regex.Match(conteudo, @"Contato:\s*(.+?)(?:\n|$)", RegexOptions.IgnoreCase);
+            if (match.Success && match.Groups.Count > 1)
+            {
+                var nome = match.Groups[1].Value.Trim();
+                return CapitalizeFirst(nome);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Capitaliza a primeira letra de uma string
+        /// </summary>
+        private string CapitalizeFirst(string texto)
+        {
+            if (string.IsNullOrWhiteSpace(texto))
+                return string.Empty;
+
+            return char.ToUpper(texto[0]) + texto.Substring(1).ToLower();
         }
     }
 }

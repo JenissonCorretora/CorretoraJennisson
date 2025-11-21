@@ -168,81 +168,122 @@
 
 .message {
   display: flex;
-  margin-bottom: $spacing-sm;
+  margin-bottom: $spacing-md;
   animation: fadeIn 0.3s ease-in;
 
+  // Mensagens do usuário (alinhadas à direita)
   &.message-usuario {
     justify-content: flex-end;
 
     .message-content {
-      background: $secondary-color;
-      color: white;
-      border-radius: $border-radius-lg $border-radius-lg 0 $border-radius-lg;
-      box-shadow: $shadow-sm;
+      align-items: flex-end;
+
+      .message-sender-name {
+        color: rgba(0, 0, 0, 0.7);
+        text-align: right;
+      }
+
+      .message-body {
+        background: $secondary-color;
+        color: white;
+        border-radius: $border-radius-lg $border-radius-lg 0 $border-radius-lg;
+        box-shadow: $shadow-sm;
+      }
     }
   }
 
+  // Mensagens do administrador (alinhadas à esquerda)
   &.message-admin {
     justify-content: flex-start;
 
     .message-content {
-      background: $bg-primary;
-      color: $text-color;
-      border-radius: $border-radius-lg $border-radius-lg $border-radius-lg 0;
-      box-shadow: $shadow-sm;
-      border: 1px solid $bg-light;
+      align-items: flex-start;
+
+      .message-sender-name {
+        color: rgba(0, 0, 0, 0.7);
+        text-align: left;
+      }
+
+      .message-body {
+        background: $bg-primary;
+        color: $text-color;
+        border-radius: $border-radius-lg $border-radius-lg $border-radius-lg 0;
+        box-shadow: $shadow-sm;
+        border: 1px solid $bg-light;
+      }
     }
   }
 
+  // Mensagens não lidas (apenas admin)
   &.message-unread {
-    .message-content {
+    .message-body {
       border-left: 3px solid $warning-color;
     }
   }
 
+  // Container da mensagem
   .message-content {
     max-width: 70%;
-    padding: $spacing-sm $spacing-md;
     word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
 
-    .message-header {
-      display: flex;
-      align-items: center;
-      gap: $spacing-sm;
-      margin-bottom: $spacing-xs;
+    // Nome do remetente acima da mensagem (estilo WhatsApp)
+    .message-sender-name {
       font-size: $font-size-xs;
-
-      .message-sender {
-        font-weight: $font-weight-semibold;
-      }
-
-      .message-time {
-        color: $text-muted;
-        font-size: $font-size-xs;
-      }
-
-      .btn-mark-read {
-        background: none;
-        border: none;
-        color: $success-color;
-        cursor: pointer;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        margin-left: auto;
-
-        .material-icons {
-          font-size: 18px;
-        }
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
+      font-weight: $font-weight-semibold;
+      padding: 0 $spacing-xs;
+      margin-bottom: 2px;
     }
 
-    .message-text {
-      line-height: 1.5;
+    // Corpo da mensagem com texto e horário
+    .message-body {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
+      padding: $spacing-sm $spacing-md;
+      position: relative;
+
+      .message-text {
+        line-height: 1.5;
+        word-wrap: break-word;
+        margin: 0;
+      }
+
+      .message-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: $spacing-xs;
+        margin-top: auto;
+        padding-top: $spacing-xs;
+
+        .message-time {
+          font-size: $font-size-xs;
+          opacity: 0.7;
+          color: inherit;
+        }
+
+        .btn-mark-read {
+          background: none;
+          border: none;
+          color: $success-color;
+          cursor: pointer;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          margin-left: auto;
+
+          .material-icons {
+            font-size: 18px;
+          }
+
+          &:hover {
+            opacity: 0.8;
+          }
+        }
+      }
     }
   }
 }

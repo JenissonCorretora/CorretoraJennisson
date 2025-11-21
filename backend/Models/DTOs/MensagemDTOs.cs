@@ -8,6 +8,7 @@ namespace CorretoraJenissonLuckwuAPI.Models.DTOs
         public int Id { get; set; }
         public int Usuario_Id { get; set; }
         public string? Usuario_Email { get; set; }
+        public string? Usuario_Nome { get; set; }
         public int? Administrador_Id { get; set; }
         public string? Administrador_Nome { get; set; }
         public string Conteudo { get; set; } = string.Empty;

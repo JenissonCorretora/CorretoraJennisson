@@ -36,11 +36,11 @@
            [class.message-usuario]="isUsuarioMessage(mensagem)"
            [class.message-admin]="!isUsuarioMessage(mensagem)">
         <div class="message-content">
-          <div class="message-header">
-            <span class="message-sender">{{ getSenderName(mensagem) }}</span>
-            <span class="message-time">{{ formatDate(mensagem.created_At) }}</span>
+          <div class="message-sender-name">{{ getSenderName(mensagem) }}</div>
+          <div class="message-body">
+            <div class="message-text">{{ getCleanMessageText(mensagem.conteudo) }}</div>
+            <div class="message-time">{{ formatDate(mensagem.created_At) }}</div>
           </div>
-          <div class="message-text">{{ getCleanMessageText(mensagem.conteudo) }}</div>
         </div>
       </div>
       }

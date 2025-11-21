@@ -398,27 +398,27 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked, OnChange
     }
   }
 
+  /**
+   * Retorna o nome do remetente da mensagem
+   * Agora usa o campo usuario_Nome que vem do backend
+   */
   getSenderName(mensagem: Mensagem): string {
-    if (this.isAdmin()) {
-      // Admin vê: nome do cliente quando é mensagem do cliente, "Você" quando é do admin
-      if (mensagem.remetente_Tipo === RemetenteTipo.Usuario) {
-        // Se está vendo conversa de um usuário específico, mostra o nome dele
-        const usuarioId = this.usuarioIdSignal();
-        if (usuarioId !== undefined && mensagem.usuario_Id === usuarioId) {
-          return this.currentUsuarioNome();
-        }
-        // Caso contrário, tenta extrair do email ou mensagem
-        return mensagem.usuario_Email?.split('@')[0] || 'Cliente';
-      } else {
-        return 'Você';
+    if (mensagem.remetente_Tipo === RemetenteTipo.Usuario) {
+      // Mensagem do usuário: usa o nome do usuário que vem do backend
+      if (mensagem.usuario_Nome) {
+        return mensagem.usuario_Nome;
       }
+
+      // Fallback: usa o email como nome se não tiver nome
+      if (mensagem.usuario_Email) {
+        const nomeDoEmail = mensagem.usuario_Email.split('@')[0];
+        return this.capitalizeFirst(nomeDoEmail);
+      }
+
+      return 'Usuário';
     } else {
-      // Usuário comum vê: "Você" quando é sua mensagem, "Administrador" quando é do admin
-      if (mensagem.remetente_Tipo === RemetenteTipo.Usuario) {
-        return 'Você';
-      } else {
-        return mensagem.administrador_Nome || 'Administrador';
-      }
+      // Mensagem do administrador: usa o nome do administrador
+      return mensagem.administrador_Nome || 'Administrador';
     }
   }
 

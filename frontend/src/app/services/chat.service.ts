@@ -12,6 +12,7 @@ export interface Mensagem {
   id: number;
   usuario_Id: number;
   usuario_Email?: string;
+  usuario_Nome?: string;
   administrador_Id?: number;
   administrador_Nome?: string;
   conteudo: string;
