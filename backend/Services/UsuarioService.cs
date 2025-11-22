@@ -7,11 +7,16 @@ namespace CorretoraJenissonLuckwuAPI.Services
     {
         private readonly UsuarioRepository _repository;
         private readonly PasswordService _passwordService;
+        private readonly AdministradorRepository _administradorRepository;
 
-        public UsuarioService(UsuarioRepository repository, PasswordService passwordService)
+        public UsuarioService(
+            UsuarioRepository repository, 
+            PasswordService passwordService,
+            AdministradorRepository administradorRepository)
         {
             _repository = repository;
             _passwordService = passwordService;
+            _administradorRepository = administradorRepository;
         }
 
         public async Task<Usuario?> GetById(int id)
@@ -26,6 +31,26 @@ namespace CorretoraJenissonLuckwuAPI.Services
 
         public async Task<Usuario?> Add(Usuario usuario)
         {
+            // VALIDAÇÃO: Verifica se o email já existe em Usuarios ou Administradores
+            if (!string.IsNullOrWhiteSpace(usuario.Email))
+            {
+                var normalizedEmail = usuario.Email.Trim().ToLowerInvariant();
+                
+                // Verifica se já existe em Usuarios
+                var usuarioExistente = await _repository.GetByEmailAsync(normalizedEmail);
+                if (usuarioExistente != null)
+                {
+                    throw new InvalidOperationException($"O email '{usuario.Email}' já está cadastrado como usuário.");
+                }
+
+                // Verifica se já existe em Administradores
+                var administradorExistente = await _administradorRepository.GetByEmailAsync(normalizedEmail);
+                if (administradorExistente != null)
+                {
+                    throw new InvalidOperationException($"O email '{usuario.Email}' já está cadastrado como administrador.");
+                }
+            }
+
             // Hash da senha antes de salvar
             if (!string.IsNullOrEmpty(usuario.Senha))
             {

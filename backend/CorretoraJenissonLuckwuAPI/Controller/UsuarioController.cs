@@ -61,6 +61,11 @@ namespace CorretoraJenissonLuckwuAPI.Controller
                 if (result == null) return BadRequest("Erro ao adicionar usuário");
                 return Ok(result);
             }
+            catch (InvalidOperationException ex)
+            {
+                // Retorna erro de validação (email duplicado) com status 409 (Conflict)
+                return Conflict(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Erro interno no servidor: {ex.Message}");

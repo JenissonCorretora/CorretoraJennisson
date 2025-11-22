@@ -196,7 +196,7 @@ export class ChatModal implements OnInit, OnDestroy, AfterViewChecked {
       return 'Usuário';
     } else {
       // Mensagem do administrador: usa o nome do administrador
-      return mensagem.administrador_Nome || 'Administrador';
+      return mensagem.administrador_Nome || 'Você';
     }
   }
 

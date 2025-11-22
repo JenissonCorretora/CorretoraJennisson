@@ -76,19 +76,31 @@ export class AuthService {
    * Realiza login automaticamente identificando o tipo de usuário
    */
   login(email: string, senha: string): Observable<LoginResponse> {
+    console.log(`[AuthService.login] Iniciando login para email: '${email}'`);
+
     return this.identifyUserType(email).pipe(
       switchMap((userTypeResponse) => {
+        console.log(`[AuthService.login] IdentifyUserType retornou:`, userTypeResponse);
+
         if (!userTypeResponse.exists) {
+          console.error(`[AuthService.login] Email não encontrado no sistema`);
           return throwError(() => new Error('Email não encontrado no sistema'));
         }
 
         if (userTypeResponse.userType === 'Admin') {
+          console.log(`[AuthService.login] Identificado como Admin, chamando loginAdmin`);
           return this.loginAdmin(email, senha);
         } else if (userTypeResponse.userType === 'User') {
+          console.log(`[AuthService.login] Identificado como User, chamando loginUsuario`);
           return this.loginUsuario(email, senha);
         } else {
-          return throwError(() => new Error('Tipo de usuário desconhecido'));
+          console.error(`[AuthService.login] Tipo de usuário desconhecido: '${userTypeResponse.userType}'`);
+          return throwError(() => new Error(`Tipo de usuário desconhecido: ${userTypeResponse.userType}`));
         }
+      }),
+      catchError(error => {
+        console.error(`[AuthService.login] ERRO no processo de login:`, error);
+        return throwError(() => error);
       })
     );
   }
@@ -174,11 +186,17 @@ export class AuthService {
    * é necessário redirecionar após limpar a autenticação
    */
   logout(): void {
+    console.log('[AuthService.logout] Iniciando logout');
+
     // Limpa tokens e dados do usuário
     this.clearAuthState();
 
+    console.log('[AuthService.logout] Estado limpo. Redirecionando para home...');
+
     // Redireciona para home
-    this.router.navigate(['/']);
+    this.router.navigate(['/']).then(() => {
+      console.log('[AuthService.logout] Logout concluído');
+    });
   }
 
   /**
@@ -239,9 +257,26 @@ export class AuthService {
    * Usado internamente quando o token expira ou precisa ser limpo
    */
   private clearAuthState(): void {
+    console.log('[AuthService.clearAuthState] Limpando estado de autenticação...');
+
+    // Limpa todos os itens de autenticação do localStorage
     localStorage.removeItem(this.accessTokenKey);
     localStorage.removeItem(this.refreshTokenKey);
     localStorage.removeItem(this.userKey);
+
+    // Verifica se foi limpo corretamente
+    const hasToken = localStorage.getItem(this.accessTokenKey);
+    const hasRefreshToken = localStorage.getItem(this.refreshTokenKey);
+    const hasUser = localStorage.getItem(this.userKey);
+
+    if (hasToken || hasRefreshToken || hasUser) {
+      console.warn('[AuthService.clearAuthState] AVISO: Alguns dados não foram limpos corretamente!');
+      console.warn(`Token: ${hasToken ? 'EXISTE' : 'OK'}, RefreshToken: ${hasRefreshToken ? 'EXISTE' : 'OK'}, User: ${hasUser ? 'EXISTE' : 'OK'}`);
+    } else {
+      console.log('[AuthService.clearAuthState] Estado limpo com sucesso');
+    }
+
+    // Atualiza estado interno
     this.updateAuthState(false, null);
   }
 

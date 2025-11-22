@@ -41,6 +41,8 @@ namespace CorretoraJenissonLuckwuAPI.Repository
             if (usuarioBanco == null)
                 return null;
 
+            // Atualiza todos os campos, incluindo o campo Nome
+            usuarioBanco.Nome = usuario.Nome;
             usuarioBanco.Email = usuario.Email;
             usuarioBanco.Senha = usuario.Senha;
             usuarioBanco.Telefone = usuario.Telefone;

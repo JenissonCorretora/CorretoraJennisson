@@ -88,43 +88,58 @@ namespace CorretoraJenissonLuckwuAPI.Services
         }
 
         /// <summary>
-        /// Mapeia uma entidade Mensagem para DTO, incluindo o nome do usuário extraído das mensagens
+        /// Mapeia uma entidade Mensagem para DTO, incluindo o nome do usuário
+        /// IMPORTANTE: Funciona EXATAMENTE como Administrador.Nome - usa o campo direto da entidade primeiro
         /// </summary>
         private MensagemDTO MapToDTO(Mensagem mensagem, List<Mensagem>? todasMensagensUsuario = null)
         {
-            // Extrai o nome do usuário das mensagens
             string? usuarioNome = null;
-            
-            if (todasMensagensUsuario != null && todasMensagensUsuario.Any())
+
+            // PRIORIDADE 1: Usa o campo Nome da entidade Usuario (igual ao Administrador.Nome funciona)
+            // Isso é a mesma lógica que funciona para Administrador.Nome na linha 137
+            if (mensagem.Usuario != null && !string.IsNullOrWhiteSpace(mensagem.Usuario.Nome))
             {
-                // Busca o nome na primeira mensagem do tipo Usuario que contenha "Contato:"
-                var primeiraMensagemComNome = todasMensagensUsuario
-                    .Where(m => m.Remetente_Tipo == RemetenteTipo.Usuario)
-                    .OrderBy(m => m.Created_At)
-                    .FirstOrDefault(m => !string.IsNullOrEmpty(m.Conteudo) && 
-                                         m.Conteudo.Contains("Contato:", StringComparison.OrdinalIgnoreCase));
+                usuarioNome = mensagem.Usuario.Nome.Trim();
+            }
 
-                if (primeiraMensagemComNome != null)
+            // PRIORIDADE 2: Se não tem Nome na entidade, tenta extrair da primeira mensagem
+            if (string.IsNullOrWhiteSpace(usuarioNome))
+            {
+                if (todasMensagensUsuario != null && todasMensagensUsuario.Any())
                 {
-                    usuarioNome = ExtrairNomeDaMensagem(primeiraMensagemComNome.Conteudo);
+                    // Busca o nome na primeira mensagem do tipo Usuario que contenha "Contato:"
+                    var primeiraMensagemComNome = todasMensagensUsuario
+                        .Where(m => m.Remetente_Tipo == RemetenteTipo.Usuario)
+                        .OrderBy(m => m.Created_At)
+                        .FirstOrDefault(m => !string.IsNullOrEmpty(m.Conteudo) && 
+                                             m.Conteudo.Contains("Contato:", StringComparison.OrdinalIgnoreCase));
+
+                    if (primeiraMensagemComNome != null)
+                    {
+                        usuarioNome = ExtrairNomeDaMensagem(primeiraMensagemComNome.Conteudo);
+                    }
+
+                    // Se não encontrou na primeira mensagem, tenta extrair da mensagem atual
+                    if (string.IsNullOrWhiteSpace(usuarioNome) && mensagem.Remetente_Tipo == RemetenteTipo.Usuario)
+                    {
+                        usuarioNome = ExtrairNomeDaMensagem(mensagem.Conteudo);
+                    }
                 }
-
-                // Se não encontrou na primeira mensagem, tenta extrair da mensagem atual
-                if (string.IsNullOrEmpty(usuarioNome) && mensagem.Remetente_Tipo == RemetenteTipo.Usuario)
+                else if (mensagem.Remetente_Tipo == RemetenteTipo.Usuario)
                 {
+                    // Tenta extrair da própria mensagem se não tiver acesso às outras
                     usuarioNome = ExtrairNomeDaMensagem(mensagem.Conteudo);
                 }
             }
-            else if (mensagem.Remetente_Tipo == RemetenteTipo.Usuario)
-            {
-                // Tenta extrair da própria mensagem se não tiver acesso às outras
-                usuarioNome = ExtrairNomeDaMensagem(mensagem.Conteudo);
-            }
 
-            // Se ainda não encontrou o nome, usa o email como fallback
-            if (string.IsNullOrEmpty(usuarioNome) && !string.IsNullOrEmpty(mensagem.Usuario?.Email))
+            // PRIORIDADE 3: Fallback - usa o email como nome se ainda não encontrou
+            if (string.IsNullOrWhiteSpace(usuarioNome) && !string.IsNullOrEmpty(mensagem.Usuario?.Email))
             {
-                usuarioNome = CapitalizeFirst(mensagem.Usuario.Email.Split('@')[0]);
+                var emailParts = mensagem.Usuario.Email.Split('@');
+                if (emailParts.Length > 0 && !string.IsNullOrWhiteSpace(emailParts[0]))
+                {
+                    usuarioNome = CapitalizeFirst(emailParts[0].Trim());
+                }
             }
 
             return new MensagemDTO
@@ -132,9 +147,9 @@ namespace CorretoraJenissonLuckwuAPI.Services
                 Id = mensagem.Id,
                 Usuario_Id = mensagem.Usuario_Id,
                 Usuario_Email = mensagem.Usuario?.Email,
-                Usuario_Nome = usuarioNome,
+                Usuario_Nome = usuarioNome, // Agora usa Usuario.Nome primeiro, igual Administrador.Nome
                 Administrador_Id = mensagem.Administrador_Id,
-                Administrador_Nome = mensagem.Administrador?.Nome,
+                Administrador_Nome = mensagem.Administrador?.Nome, // Isso funciona porque usa o campo direto
                 Conteudo = mensagem.Conteudo,
                 Remetente_Tipo = mensagem.Remetente_Tipo,
                 Lida = mensagem.Lida,

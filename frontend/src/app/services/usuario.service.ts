@@ -5,6 +5,7 @@ import { API_CONFIG } from '../config/api.config';
 
 export interface Usuario {
   id: number;
+  nome?: string; // Campo adicionado para corresponder ao backend
   email: string;
   senha?: string; // Não deve ser enviado em requisições GET
   stream_user_id: string;
@@ -15,6 +16,7 @@ export interface Usuario {
 }
 
 export interface CreateUsuarioRequest {
+  nome: string; // Campo obrigatório - adicionado para corresponder ao backend
   email: string;
   senha: string;
   stream_user_id?: string; // Opcional - comentado conforme solicitado

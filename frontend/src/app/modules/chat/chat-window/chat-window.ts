@@ -394,13 +394,14 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked, OnChange
     } else {
       const currentUser = this.authService.getCurrentUser();
       return mensagem.remetente_Tipo === RemetenteTipo.Usuario &&
-             mensagem.usuario_Id === currentUser?.userId;
+        mensagem.usuario_Id === currentUser?.userId;
     }
   }
 
   /**
    * Retorna o nome do remetente da mensagem
-   * Agora usa o campo usuario_Nome que vem do backend
+   * Mensagens do administrador mostram "Você" (estilo WhatsApp)
+   * Mensagens do usuário mostram o nome do cliente
    */
   getSenderName(mensagem: Mensagem): string {
     if (mensagem.remetente_Tipo === RemetenteTipo.Usuario) {
@@ -417,8 +418,8 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked, OnChange
 
       return 'Usuário';
     } else {
-      // Mensagem do administrador: usa o nome do administrador
-      return mensagem.administrador_Nome || 'Administrador';
+      // Mensagem do administrador: mostra "Você" (estilo WhatsApp)
+      return 'Você';
     }
   }
 
@@ -456,10 +457,10 @@ export class ChatWindow implements OnInit, OnDestroy, AfterViewChecked, OnChange
 
       // Pula linhas de metadados
       if (trimmedLine.startsWith('Assunto:') ||
-          trimmedLine.startsWith('Contato:') ||
-          trimmedLine.startsWith('E-mail:') ||
-          trimmedLine.startsWith('Telefone:') ||
-          trimmedLine === '---') {
+        trimmedLine.startsWith('Contato:') ||
+        trimmedLine.startsWith('E-mail:') ||
+        trimmedLine.startsWith('Telefone:') ||
+        trimmedLine === '---') {
         continue;
       }
 

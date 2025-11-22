@@ -41,7 +41,7 @@ export class Register {
     this.successMessage.set('');
 
     // Validações básicas
-    if (!this.email || !this.password || !this.confirmPassword) {
+    if (!this.name || !this.email || !this.password || !this.confirmPassword) {
       this.errorMessage.set('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
@@ -71,10 +71,17 @@ export class Register {
       return;
     }
 
-    // Prepara dados para envio (sem name e sem stream_user_id)
+    // Valida se o nome foi preenchido
+    if (!this.name || !this.name.trim()) {
+      this.errorMessage.set('Por favor, preencha o nome completo.');
+      return;
+    }
+
+    // Prepara dados para envio (incluindo nome agora que é obrigatório)
     // O backend vai validar se o email já existe
     this.loading.set(true);
     const usuarioData: CreateUsuarioRequest = {
+      nome: this.name.trim(),
       email: this.email.trim(),
       senha: this.password,
       telefone: this.phone.trim() || undefined

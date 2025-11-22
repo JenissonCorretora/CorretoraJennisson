@@ -13,6 +13,9 @@ namespace CorretoraJenissonLuckwuAPI.Models.Entities
 
     #region Properties
     [Required]
+    public string? Nome { get; set; }
+
+    [Required]
     [EmailAddress]
     public string? Email { get; set; }
 
