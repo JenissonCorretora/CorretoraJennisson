@@ -38,8 +38,9 @@ namespace CorretoraJenissonLuckwuAPI.Models.Entities
 
         [Required]
         public string TipoImovel { get; set; } = string.Empty;// Casa, Apartamento, Terreno ou definido pelo admin
-        [Required]
         public string Titulo { get; set; }
+
+        public bool Ativo { get; set; } = true;
 
         #endregion
 

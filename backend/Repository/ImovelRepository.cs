@@ -31,6 +31,11 @@ namespace CorretoraJenissonLuckwuAPI.Repository
 
         public async Task<Imovel?> AddAsync(Imovel imovel)
         {
+            // Garante que novos imóveis sempre sejam criados como ativos
+            if (!imovel.Ativo)
+            {
+                imovel.Ativo = true;
+            }
             await _context.Imoveis.AddAsync(imovel);
             await _context.SaveChangesAsync();
             return imovel;
@@ -51,6 +56,7 @@ namespace CorretoraJenissonLuckwuAPI.Repository
             imovelBanco.Preco = imovel.Preco;
             imovelBanco.Status = imovel.Status;
             imovelBanco.TipoImovel = imovel.TipoImovel;
+            imovelBanco.Ativo = imovel.Ativo;
             imovelBanco.Updated_at = DateTime.UtcNow;
 
             _context.Imoveis.Update(imovelBanco);
@@ -108,6 +114,25 @@ namespace CorretoraJenissonLuckwuAPI.Repository
                 .Where(i => i.Preco >= precoMin && i.Preco <= precoMax)
                 .OrderByDescending(i => i.Created_at)
                 .ToListAsync();
+        }
+
+        public async Task<Imovel?> UpdateAtivoAsync(int id, bool ativo)
+        {
+            var imovelBanco = await _context.Imoveis
+                .Include(i => i.Imagens)
+                .Include(i => i.Favoritos)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (imovelBanco == null)
+            {
+                return null;
+            }
+
+            imovelBanco.Ativo = ativo;
+            imovelBanco.Updated_at = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return imovelBanco;
         }
     }
 }

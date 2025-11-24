@@ -90,8 +90,9 @@ export class Favoritos implements OnInit {
     );
 
     Promise.all(imoveisPromises).then(imoveis => {
-      // Filtra undefined (caso algum imóvel não exista mais)
-      const imoveisValidos = imoveis.filter(i => i !== undefined) as Imovel[];
+      // Filtra undefined (caso algum imóvel não exista mais) e imóveis desativados
+      const imoveisValidos = (imoveis.filter(i => i !== undefined) as Imovel[])
+        .filter(imovel => imovel.ativo !== false);
       this.imoveis.set(imoveisValidos);
       this.loading.set(false);
     }).catch(error => {

@@ -158,7 +158,28 @@ namespace CorretoraJenissonLuckwuAPI.Controller
                 return StatusCode(500, $"Erro interno no servidor: {ex.Message}");
             }
         }
+
+        [HttpPatch("{id}/ativo")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Imovel>> AtualizarStatusAtivo(int id, [FromBody] AtualizarStatusAtivoRequest request)
+        {
+            try
+            {
+                var imovel = await _services.UpdateAtivo(id, request.Ativo);
+                if (imovel == null) return NotFound("Imóvel não encontrado");
+                return Ok(imovel);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro interno no servidor: {ex.Message}");
+            }
+        }
         #endregion
+    }
+
+    public class AtualizarStatusAtivoRequest
+    {
+        public bool Ativo { get; set; }
     }
 }
 

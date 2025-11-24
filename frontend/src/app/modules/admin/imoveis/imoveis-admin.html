@@ -105,6 +105,26 @@
             <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
           </select>
         </div>
+
+        <div class="form-group toggle-field">
+          <label>
+            <span class="material-icons">{{ formData.ativo === false ? 'visibility_off' : 'visibility' }}</span>
+            Visibilidade *
+          </label>
+          <div class="toggle-control">
+            <label class="switch" aria-label="Visibilidade do imóvel">
+              <input type="checkbox"
+                     name="ativo"
+                     [(ngModel)]="formData.ativo"
+                     [disabled]="loading()" />
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-text">
+              {{ formData.ativo === false ? 'Desabilitado para clientes' : 'Habilitado para clientes' }}
+            </span>
+          </div>
+          <small class="field-hint">Desabilite para ocultar temporariamente este imóvel no site.</small>
+        </div>
       </div>
 
       <!-- Localização -->
@@ -341,7 +361,7 @@
     @if (imoveisFiltrados().length > 0) {
     <div class="imoveis-grid">
       @for (imovel of imoveisFiltrados(); track imovel.id) {
-      <div class="imovel-item">
+      <div class="imovel-item" [class.imovel-inativo]="imovel.ativo === false">
         <!-- Imagem -->
         <div class="imovel-item-image">
           @if (imovel.imagens && imovel.imagens.length > 0) {
@@ -355,6 +375,10 @@
             <p>Sem imagem</p>
           </div>
           }
+          <span class="imovel-status-chip" [class.inactive]="imovel.ativo === false">
+            <span class="material-icons">{{ imovel.ativo === false ? 'visibility_off' : 'visibility' }}</span>
+            {{ imovel.ativo === false ? 'Desabilitado' : 'Habilitado' }}
+          </span>
         </div>
 
         <!-- Informações -->
@@ -375,6 +399,15 @@
 
         <!-- Ações -->
         <div class="imovel-item-actions">
+          <button type="button"
+                  class="btn-action btn-toggle"
+                  (click)="toggleAtivo(imovel)"
+                  [disabled]="loading()"
+                  [title]="imovel.ativo === false ? 'Habilitar imóvel' : 'Desabilitar imóvel'"
+                  aria-label="Alterar visibilidade do imóvel">
+            <span class="material-icons">{{ imovel.ativo === false ? 'toggle_on' : 'toggle_off' }}</span>
+            {{ imovel.ativo === false ? 'Habilitar' : 'Desabilitar' }}
+          </button>
           <button type="button"
                   class="btn-action btn-edit"
                   (click)="editarImovel(imovel)"

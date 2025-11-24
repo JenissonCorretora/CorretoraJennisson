@@ -89,9 +89,11 @@ export class Imoveis implements OnInit {
 
     this.imovelService.getAll().subscribe({
       next: (imoveis) => {
-        this.imoveis.set(imoveis);
-        this.extrairCidades(imoveis);
-        this.extrairTipos(imoveis);
+        // Filtra apenas imóveis ativos (considera true ou undefined/null como ativo para compatibilidade)
+        const ativos = imoveis.filter(imovel => imovel.ativo !== false);
+        this.imoveis.set(ativos);
+        this.extrairCidades(ativos);
+        this.extrairTipos(ativos);
         this.loading.set(false);
       },
       error: (error) => {

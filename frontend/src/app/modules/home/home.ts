@@ -277,7 +277,9 @@ export class Home implements OnInit, OnDestroy {
 
     this.imovelService.getAll().subscribe({
       next: (imoveis) => {
-        const disponiveis = imoveis
+        // Filtra apenas imóveis ativos (considera true ou undefined/null como ativo para compatibilidade)
+        const ativos = imoveis.filter(imovel => imovel.ativo !== false);
+        const disponiveis = ativos
           .filter(imovel => imovel.status === StatusImovel.Disponivel)
           .sort((a, b) => {
             const dataA = a.created_at ? new Date(a.created_at).getTime() : 0;
@@ -286,8 +288,8 @@ export class Home implements OnInit, OnDestroy {
           });
 
         this.featuredImoveis = disponiveis.slice(0, 3);
-        this.atualizarTipos(imoveis);
-        this.atualizarCategorias(imoveis);
+        this.atualizarTipos(ativos);
+        this.atualizarCategorias(ativos);
         this.loadingFeatured = false;
         this.cdRef.detectChanges();
       },

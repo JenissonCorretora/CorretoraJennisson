@@ -56,6 +56,11 @@ namespace CorretoraJenissonLuckwuAPI.Services
         {
             return await _repository.GetByPrecoRangeAsync(precoMin, precoMax);
         }
+
+        public async Task<Imovel?> UpdateAtivo(int id, bool ativo)
+        {
+            return await _repository.UpdateAtivoAsync(id, ativo);
+        }
     }
 }
 

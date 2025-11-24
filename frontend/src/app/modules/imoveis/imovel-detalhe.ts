@@ -67,6 +67,13 @@ export class ImovelDetalhe implements OnInit {
 
     this.imovelService.getById(id).subscribe({
       next: (imovel) => {
+        // Verifica se o imóvel está desabilitado (apenas se o campo existir e for false)
+        if (imovel.ativo === false) {
+          this.errorMessage.set('Este imóvel não está disponível no momento.');
+          this.imovel.set(null);
+          this.loading.set(false);
+          return;
+        }
         this.imovel.set(imovel);
         this.galleryIndex.set(0);
         this.loading.set(false);

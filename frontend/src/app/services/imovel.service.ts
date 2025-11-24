@@ -23,6 +23,7 @@ export interface Imovel {
   preco: number;
   status: StatusImovel;
   tipoImovel: string;
+  ativo?: boolean;
   created_at?: string;
   updated_at?: string;
   imagens?: ImagemImovel[];
@@ -44,6 +45,7 @@ export interface CreateImovelRequest {
   preco: number;
   status: StatusImovel;
   tipoImovel: string;
+  ativo?: boolean;
 }
 
 export interface UpdateImovelRequest extends Partial<CreateImovelRequest> {
@@ -84,6 +86,13 @@ export class ImovelService {
    */
   update(id: number, imovel: Partial<CreateImovelRequest>): Observable<Imovel> {
     return this.http.put<Imovel>(`${this.baseUrl}/${id}`, imovel);
+  }
+
+  /**
+   * Atualiza o status ativo/inativo de um imóvel (requer autenticação admin)
+   */
+  updateAtivo(id: number, ativo: boolean): Observable<Imovel> {
+    return this.http.patch<Imovel>(`${this.baseUrl}/${id}/ativo`, { ativo });
   }
 
   /**

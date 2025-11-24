@@ -34,7 +34,8 @@ export class ImoveisAdmin implements OnInit {
     cidade: 'João Pessoa',
     endereco: '',
     status: StatusImovel.Disponivel,
-    descricao: ''
+    descricao: '',
+    ativo: true
   };
 
   imagensSelecionadas = signal<File[]>([]);
@@ -205,7 +206,8 @@ export class ImoveisAdmin implements OnInit {
       endereco: '',
       preco: undefined,
       status: StatusImovel.Disponivel,
-      descricao: ''
+      descricao: '',
+      ativo: true
     };
     this.imagensSelecionadas.set([]);
     this.imagensPreview.set([]);
@@ -229,7 +231,8 @@ export class ImoveisAdmin implements OnInit {
       endereco: imovel.endereco,
       preco: imovel.preco,
       status: imovel.status,
-      descricao: imovel.descricao
+      descricao: imovel.descricao,
+      ativo: imovel.ativo !== false
     };
     this.imagensSelecionadas.set([]);
     this.imagensPreview.set([]);
@@ -294,7 +297,8 @@ export class ImoveisAdmin implements OnInit {
       endereco: this.formData.endereco!,
       preco: this.formData.preco!,
       status: this.formData.status!,
-      descricao: this.formData.descricao!
+      descricao: this.formData.descricao!,
+      ativo: this.formData.ativo ?? true
     };
 
     const editing = this.editingImovel();
@@ -404,6 +408,65 @@ export class ImoveisAdmin implements OnInit {
         this.errorMessage.set('Erro ao excluir imóvel. Tente novamente.');
       }
     });
+    });
+  }
+
+  toggleAtivo(imovel: Imovel): void {
+    const estaAtivo = imovel.ativo !== false;
+    const proximoEstado = !estaAtivo;
+    const titulo = proximoEstado ? 'Habilitar Imóvel' : 'Desabilitar Imóvel';
+    const mensagem = proximoEstado
+      ? `Deseja habilitar o imóvel "${imovel.titulo}"? Ele ficará visível para os clientes.`
+      : `Deseja desabilitar o imóvel "${imovel.titulo}"? Ele deixará de aparecer para os clientes.`;
+
+    this.alertService.confirm(
+      titulo,
+      mensagem,
+      proximoEstado ? 'Sim, habilitar' : 'Sim, desabilitar',
+      'Cancelar',
+      'question'
+    ).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.loading.set(true);
+
+      this.imovelService.updateAtivo(imovel.id, proximoEstado).pipe(
+        // Após atualizar, recarrega o imóvel completo do backend para garantir que todas as propriedades estejam atualizadas
+        switchMap(() => this.imovelService.getById(imovel.id)),
+        finalize(() => this.loading.set(false))
+      ).subscribe({
+        next: (imovelAtualizado) => {
+          // Atualiza o imóvel no array com os dados completos (incluindo imagens)
+          const atualizados = this.imoveis().map(item =>
+            item.id === imovelAtualizado.id ? imovelAtualizado : item
+          );
+          this.imoveis.set(atualizados);
+
+          // Se estiver editando este imóvel, atualiza também o estado do formulário
+          const editing = this.editingImovel();
+          if (editing && editing.id === imovelAtualizado.id) {
+            this.editingImovel.set(imovelAtualizado);
+            // Atualiza as imagens existentes no formulário
+            if (imovelAtualizado.imagens && imovelAtualizado.imagens.length > 0) {
+              this.imagensExistentes.set(imovelAtualizado.imagens.map(img => img.url));
+            } else {
+              this.imagensExistentes.set([]);
+            }
+          }
+
+          this.successMessage.set(proximoEstado
+            ? 'Imóvel habilitado com sucesso!'
+            : 'Imóvel desabilitado com sucesso!');
+          setTimeout(() => this.successMessage.set(''), 3000);
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar visibilidade do imóvel:', error);
+          this.errorMessage.set('Não foi possível alterar a visibilidade do imóvel. Tente novamente.');
+          setTimeout(() => this.errorMessage.set(''), 4000);
+        }
+      });
     });
   }
 
