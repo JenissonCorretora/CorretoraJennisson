@@ -240,6 +240,7 @@
   // Menu Hamburguer (Mobile)
   .navbar-toggler {
     display: none;
+    position: relative;
     flex-direction: column;
     justify-content: space-between;
     width: 30px;
@@ -290,6 +291,25 @@
 // Responsividade
 @media (max-width: $breakpoint-lg) {
   .navbar {
+    .navbar-overlay {
+      position: fixed;
+      top: $navbar-height;
+      left: 0;
+      width: 100vw;
+      height: calc(100vh - #{$navbar-height});
+      background-color: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 998;
+      cursor: pointer;
+
+      &.active {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+
     .navbar-menu {
       position: fixed;
       top: $navbar-height;
@@ -303,6 +323,7 @@
       box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
       transition: right 0.3s ease;
       overflow-y: auto;
+      z-index: 999;
 
       &.active {
         right: 0;
@@ -348,7 +369,9 @@
     }
 
     .navbar-toggler {
-      display: flex;
+      display: flex !important;
+      position: relative;
+      z-index: 1001;
     }
   }
 }

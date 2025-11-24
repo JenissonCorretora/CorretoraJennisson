@@ -3,11 +3,19 @@
     <!-- Logo -->
     <div class="navbar-brand">
       <a routerLink="/"
-         class="logo">
+         class="logo"
+         (click)="closeMenu()">
         <img src="/images/logo-menor.svg"
              alt="Logo Jennisson Realty"
              class="logo-img">
       </a>
+    </div>
+
+    <!-- Overlay para fechar menu mobile -->
+    <div class="navbar-overlay"
+         [class.active]="menuOpen()"
+         (click)="closeMenu()"
+         *ngIf="menuOpen()">
     </div>
 
     <!-- Menu Desktop -->
@@ -18,28 +26,32 @@
           <a routerLink="/"
              class="nav-link"
              routerLinkActive="active"
-             [routerLinkActiveOptions]="{exact: true}">
+             [routerLinkActiveOptions]="{exact: true}"
+             (click)="closeMenu()">
             HOME
           </a>
         </li>
         <li class="nav-item">
           <a routerLink="/sobre"
              class="nav-link"
-             routerLinkActive="active">
+             routerLinkActive="active"
+             (click)="closeMenu()">
             SOBRE
           </a>
         </li>
         <li class="nav-item">
           <a routerLink="/imoveis"
              class="nav-link"
-             routerLinkActive="active">
+             routerLinkActive="active"
+             (click)="closeMenu()">
             IMÓVEIS
           </a>
         </li>
         <li class="nav-item">
           <a routerLink="/contato"
              class="nav-link"
-             routerLinkActive="active">
+             routerLinkActive="active"
+             (click)="closeMenu()">
             CONTATO
           </a>
         </li>
@@ -52,6 +64,7 @@
           <a routerLink="/admin/imoveis"
              class="btn btn-outline"
              routerLinkActive="active"
+             (click)="closeMenu()"
              title="Adicionar Imóvel"
              aria-label="Adicionar novo imóvel">
             <span class="material-icons">add</span>
@@ -63,6 +76,7 @@
           <a routerLink="/chat"
              class="btn btn-outline"
              routerLinkActive="active"
+             (click)="closeMenu()"
              title="Chat com Clientes"
              aria-label="Abrir chat com clientes">
             <span class="material-icons">chat</span>
@@ -87,6 +101,7 @@
           <a routerLink="/favoritos"
              class="btn btn-favorites"
              routerLinkActive="active"
+             (click)="closeMenu()"
              title="Meus Favoritos"
              aria-label="Ver meus imóveis favoritos">
             <span class="material-icons">favorite</span>
