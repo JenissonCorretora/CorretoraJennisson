@@ -4,6 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ImovelService, Imovel, StatusImovel, DEFAULT_TIPOS_IMOVEL } from '../../services/imovel.service';
 
+interface ServiceCategory {
+  icon: string;
+  title: string;
+  description: string;
+  count: number;
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -22,44 +29,30 @@ export class Home implements OnInit, OnDestroy {
   availableTipos: string[] = [...DEFAULT_TIPOS_IMOVEL];
 
   // Serviços/Categorias disponíveis
-  services = [
-    {
-      icon: 'business',
-      title: 'Loja Comercial',
-      description: 'Imóveis comerciais',
-      count: 120
-    },
-    {
-      icon: 'home',
-      title: 'Casas',
-      description: 'Casas residenciais',
-      count: 89
-    },
-    {
-      icon: 'apartment',
-      title: 'Apartamentos',
-      description: 'Apartamentos modernos',
-      count: 156
-    },
-    {
-      icon: 'favorite',
-      title: 'Favoritos',
-      description: 'Seus imóveis favoritos',
-      count: 45
-    },
-    {
-      icon: 'location_city',
-      title: 'Prédios',
-      description: 'Prédios comerciais',
-      count: 23
-    },
-    {
-      icon: 'shopping_cart',
-      title: 'Comprar',
-      description: 'Imóveis à venda',
-      count: 234
-    }
-  ];
+  services: ServiceCategory[] = [];
+
+  private readonly iconMap: Record<string, string> = {
+    casa: 'home',
+    apartamento: 'apartment',
+    terreno: 'park',
+    sitio: 'villa',
+    sítio: 'villa',
+    chacara: 'villa',
+    chácara: 'villa',
+    fazenda: 'forest',
+    loft: 'domain',
+    kitnet: 'roofing',
+    cobertura: 'pentagon',
+    predio: 'location_city',
+    prédio: 'location_city',
+    comercial: 'business',
+    loja: 'storefront',
+    galpao: 'warehouse',
+    galpão: 'warehouse',
+    sala: 'meeting_room',
+    studio: 'chair',
+    estúdio: 'chair'
+  };
 
   // Controle do carrossel
   currentIndex = 0;
@@ -134,34 +127,8 @@ export class Home implements OnInit, OnDestroy {
    * Navega para a página de imóveis com filtro
    */
   filterByCategory(category: string): void {
-    const normalized = category.toLowerCase();
-
-    // Favoritos leva para a página de favoritos (rota protegida)
-    if (normalized === 'favoritos') {
-      this.router.navigate(['/favoritos']);
-      return;
-    }
-
     const queryParams: Record<string, any> = {};
-
-    switch (normalized) {
-      case 'casas':
-        queryParams['tipo'] = 'Casa';
-        break;
-      case 'apartamentos':
-        queryParams['tipo'] = 'Apartamento';
-        break;
-      case 'terreno':
-      case 'terrenos':
-        queryParams['tipo'] = 'Terreno';
-        break;
-      case 'comprar':
-        queryParams['status'] = StatusImovel.Disponivel;
-        break;
-      default:
-        queryParams['search'] = category;
-        break;
-    }
+    queryParams['tipo'] = this.titleCase(category);
 
     this.navigateToImoveis(queryParams);
   }
@@ -320,6 +287,7 @@ export class Home implements OnInit, OnDestroy {
 
         this.featuredImoveis = disponiveis.slice(0, 3);
         this.atualizarTipos(imoveis);
+        this.atualizarCategorias(imoveis);
         this.loadingFeatured = false;
         this.cdRef.detectChanges();
       },
@@ -327,6 +295,7 @@ export class Home implements OnInit, OnDestroy {
         console.error('Erro ao carregar imóveis em destaque:', error);
         this.featuredError = 'Não foi possível carregar os imóveis em destaque no momento.';
         this.loadingFeatured = false;
+        this.services = [];
         this.cdRef.detectChanges();
       }
     });
@@ -444,6 +413,43 @@ export class Home implements OnInit, OnDestroy {
     }
 
     this.availableTipos = Array.from(tiposSet).sort();
+  }
+
+  private atualizarCategorias(imoveis: Imovel[]): void {
+    if (!imoveis || imoveis.length === 0) {
+      this.services = [];
+      return;
+    }
+
+    const categoriasMap = new Map<string, number>();
+
+    imoveis.forEach(imovel => {
+      const tipo = this.titleCase(imovel.tipoImovel || '');
+      if (!tipo) return;
+      const quantidadeAtual = categoriasMap.get(tipo) || 0;
+      categoriasMap.set(tipo, quantidadeAtual + 1);
+    });
+
+    const categoriasOrdenadas = Array.from(categoriasMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6);
+
+    this.services = categoriasOrdenadas.map(([tipo, count]) => ({
+      icon: this.getIconForTipo(tipo),
+      title: tipo,
+      description: `${count} imóvel${count > 1 ? 'eis' : ''} disponível${count > 1 ? 's' : ''}`,
+      count
+    }));
+  }
+
+  private getIconForTipo(tipo: string): string {
+    const normalized = (tipo || '').toLowerCase();
+    for (const key of Object.keys(this.iconMap)) {
+      if (normalized.includes(key)) {
+        return this.iconMap[key];
+      }
+    }
+    return 'other_houses';
   }
 
   private titleCase(value: string): string {
