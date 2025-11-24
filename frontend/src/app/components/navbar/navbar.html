@@ -50,12 +50,11 @@
         <!-- Botão Adicionar Imóvel (somente para administradores) -->
         <ng-container *ngIf="isAdmin()">
           <a routerLink="/admin/imoveis"
-             class="btn btn-primary"
+             class="btn btn-outline"
              routerLinkActive="active"
              title="Adicionar Imóvel"
              aria-label="Adicionar novo imóvel">
             <span class="material-icons">add</span>
-            <span class="btn-text">Adicionar Imóvel</span>
           </a>
         </ng-container>
 

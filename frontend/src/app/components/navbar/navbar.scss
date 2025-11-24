@@ -137,12 +137,18 @@
           background-color: transparent;
           border: 2px solid $secondary-color;
           color: $secondary-color;
+          text-decoration: none;
 
           &:hover {
             background-color: $secondary-color;
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+          }
+
+          &.active {
+            background-color: $secondary-color;
+            color: white;
           }
         }
 
