@@ -101,18 +101,21 @@ export class ChatModal implements OnInit, OnDestroy, AfterViewChecked {
   private async loadMessages() {
     try {
       this.loading.set(true);
-      const allMessages = await firstValueFrom(this.chatService.getAll());
-      if (allMessages && allMessages.length > 0) {
-        const currentUser = this.authService.getCurrentUser();
-        if (currentUser) {
-          const userMessages = allMessages.filter(m => m.usuario_Id === currentUser.userId);
-          const sorted = userMessages.sort((a, b) =>
-            new Date(a.created_At).getTime() - new Date(b.created_At).getTime()
-          );
-          this.messages.set(sorted);
-          this.shouldScroll = true;
-        }
+      const currentUser = this.authService.getCurrentUser();
+
+      if (!currentUser) {
+        this.messages.set([]);
+        this.shouldScroll = false;
+        return;
       }
+
+      const allMessages = await firstValueFrom(this.chatService.getAll());
+      const userMessages = (allMessages ?? [])
+        .filter(m => m.usuario_Id === currentUser.userId)
+        .sort((a, b) => new Date(a.created_At).getTime() - new Date(b.created_At).getTime());
+
+      this.messages.set(userMessages);
+      this.shouldScroll = userMessages.length > 0;
     } catch (error) {
       console.error('Erro ao carregar mensagens:', error);
     } finally {
