@@ -24,7 +24,14 @@
       </div>
       <div class="conversa-info">
         <div class="conversa-header-row">
-          <h3 class="conversa-nome">{{ conversa.usuarioNome }}</h3>
+            <div class="conversa-nome-wrapper">
+              <h3 class="conversa-nome">{{ conversa.usuarioNome }}</h3>
+              @if (conversa.naoLidas > 0) {
+              <span class="unread-dot"
+                    title="{{ conversa.naoLidas }} nova(s) mensagem(ns)"
+                    aria-label="{{ conversa.naoLidas }} nova(s) mensagem(ns)"></span>
+              }
+            </div>
           @if (conversa.ultimaMensagem) {
           <span class="conversa-time">{{ formatDate(conversa.ultimaMensagem.created_At) }}</span>
           }
@@ -34,9 +41,6 @@
           <p class="conversa-assunto">{{ conversa.assunto }}</p>
           } @else {
           <p class="conversa-preview">{{ getPreviewText(conversa.ultimaMensagem?.conteudo || '') }}</p>
-          }
-          @if (conversa.naoLidas > 0) {
-          <span class="badge">{{ conversa.naoLidas }}</span>
           }
         </div>
         <div class="conversa-dados">

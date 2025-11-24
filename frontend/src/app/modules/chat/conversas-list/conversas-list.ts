@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ChatService, Mensagem, Conversa, RemetenteTipo } from '../../../services/chat.service';
 import { UsuarioService } from '../../../services/usuario.service';
 import { SignalRService } from '../../../services/signalr.service';
+import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
 
@@ -21,12 +22,21 @@ export class ConversasList implements OnInit, OnDestroy {
   loading = signal(false);
   private subscriptions = new Subscription();
   private unsubscribeMessage?: () => void;
+  private isAdminUser = false;
+  private currentUserId?: number;
 
   constructor(
     private chatService: ChatService,
     private usuarioService: UsuarioService,
-    private signalRService: SignalRService
-  ) {}
+    private signalRService: SignalRService,
+    private authService: AuthService
+  ) {
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.isAdminUser = currentUser.role === 'Admin';
+      this.currentUserId = currentUser.userId;
+    }
+  }
 
   async ngOnInit() {
     await this.loadConversas();
@@ -148,7 +158,12 @@ export class ConversasList implements OnInit, OnDestroy {
                new Date(a.ultimaMensagem.created_At).getTime();
       });
 
-      this.conversas.set(conversasArray);
+      const conversasFiltradas =
+        !this.isAdminUser && this.currentUserId
+          ? conversasArray.filter(conversa => conversa.usuarioId === this.currentUserId)
+          : conversasArray;
+
+      this.conversas.set(conversasFiltradas);
     } catch (error) {
       console.error('Erro ao carregar conversas:', error);
       this.conversas.set([]);
@@ -158,7 +173,22 @@ export class ConversasList implements OnInit, OnDestroy {
   }
 
   selectConversa(usuarioId: number) {
+    if (!this.isAdminUser) {
+      if (this.currentUserId && usuarioId !== this.currentUserId) {
+        console.warn('Usuário tentou acessar conversa de outro cliente. Ação bloqueada.');
+        return;
+      }
+      this.conversaSelected.emit(usuarioId);
+      return;
+    }
+
+    // Atualiza imediatamente qual conversa está selecionada
     this.conversaSelected.emit(usuarioId);
+
+    // Marca como lidas em background para não atrasar a seleção
+    this.markConversasComoLidas(usuarioId).catch(error =>
+      console.error('Erro ao marcar mensagens como lidas:', error)
+    );
   }
 
   formatDate(dateString: string): string {
@@ -220,6 +250,43 @@ export class ConversasList implements OnInit, OnDestroy {
   private capitalizeFirst(str: string): string {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
+  private async markConversasComoLidas(usuarioId: number) {
+    if (!this.isAdminUser) {
+      return;
+    }
+
+    const conversas = [...this.conversas()];
+    const conversa = conversas.find(c => c.usuarioId === usuarioId);
+    if (!conversa) return;
+
+    const mensagensNaoLidas = conversa.mensagens.filter(
+      mensagem => mensagem.remetente_Tipo === RemetenteTipo.Usuario && !mensagem.lida
+    );
+
+    if (mensagensNaoLidas.length === 0) {
+      return;
+    }
+
+    try {
+      await Promise.all(
+        mensagensNaoLidas.map(mensagem =>
+          firstValueFrom(this.chatService.markAsRead(mensagem.id))
+        )
+      );
+
+      // Atualiza estado local
+      conversa.mensagens = conversa.mensagens.map(mensagem =>
+        mensagem.remetente_Tipo === RemetenteTipo.Usuario
+          ? { ...mensagem, lida: true }
+          : mensagem
+      );
+      conversa.naoLidas = 0;
+      this.conversas.set(conversas);
+    } catch (error) {
+      console.error('Erro ao marcar mensagens como lidas:', error);
+    }
   }
 }
 

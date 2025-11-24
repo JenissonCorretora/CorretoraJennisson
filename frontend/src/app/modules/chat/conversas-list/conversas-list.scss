@@ -84,6 +84,12 @@
           align-items: center;
           margin-bottom: 0.25rem;
 
+          .conversa-nome-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+          }
+
           .conversa-nome {
             margin: 0;
             font-size: 1rem;
@@ -92,6 +98,15 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+          }
+
+          .unread-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: $danger-color;
+            box-shadow: 0 0 10px rgba($danger-color, 0.6);
+            animation: pulse 1.5s infinite ease-in-out;
           }
 
           .conversa-time {
@@ -128,15 +143,6 @@
             flex: 1;
           }
 
-          .badge {
-            background-color: $secondary-color;
-            color: white;
-            border-radius: $border-radius;
-            padding: 0.15rem 0.5rem;
-            font-size: 0.75rem;
-            font-weight: $font-weight-semibold;
-            flex-shrink: 0;
-          }
         }
 
         .conversa-dados {
@@ -181,5 +187,20 @@
       background: $text-light;
     }
   }
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+}
 }
 

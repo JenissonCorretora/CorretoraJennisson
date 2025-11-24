@@ -23,9 +23,6 @@
       <span class="material-icons">chat</span>
       <h3>{{ isAdmin() ? 'Chat com Clientes' : 'Chat de Suporte' }}</h3>
       }
-      @if (isAdmin() && unreadCount() > 0 && usuarioId === undefined) {
-      <span class="badge">{{ unreadCount() }}</span>
-      }
     </div>
     @if (!isConnected()) {
     <div class="connection-status">
