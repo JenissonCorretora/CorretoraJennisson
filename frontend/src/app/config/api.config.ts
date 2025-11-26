@@ -1,8 +1,18 @@
 /**
  * Configuração da API
+ * Detecta automaticamente se está em produção ou desenvolvimento
  */
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const API_BASE_URL = isProduction
+  ? 'https://corretora-jennisson-backend.onrender.com/api' // ⚠️ SUBSTITUA pela URL real do Render quando criar
+  : 'http://localhost:5166/api';
+
+const CHAT_HUB_URL = isProduction
+  ? 'https://corretora-jennisson-backend.onrender.com/chathub' // ⚠️ SUBSTITUA pela URL real do Render quando criar
+  : 'http://localhost:5166/chathub';
+
 export const API_CONFIG = {
-  baseUrl: 'http://localhost:5166/api',
+  baseUrl: API_BASE_URL,
   endpoints: {
     auth: {
       loginAdmin: '/auth/login-administrador',
@@ -19,7 +29,7 @@ export const API_CONFIG = {
     administradores: '/administrador',
     conteudoSite: '/conteudosite',
     mensagens: '/mensagem',
-    chatHub: 'http://localhost:5166/chathub'
+    chatHub: CHAT_HUB_URL
   }
 };
 
