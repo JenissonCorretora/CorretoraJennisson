@@ -14,6 +14,8 @@ WORKDIR "/src/CorretoraJenissonLuckwuAPI"
 RUN dotnet restore "CorretoraJenissonLuckwuAPI.csproj"
 
 # Copiar todo o código fonte
+
+#testando commit
 WORKDIR /src
 COPY EFModel/ EFModel/
 COPY Models/ Models/
