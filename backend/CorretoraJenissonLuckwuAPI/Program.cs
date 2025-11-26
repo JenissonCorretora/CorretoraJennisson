@@ -87,7 +87,8 @@ builder.Services.AddCors(options =>
                 "http://localhost:4200", 
                 "https://localhost:4200",
                 "https://corretora-jennisson.vercel.app",
-                "https://corretora-jennisson-git-main-jenissoncorretoras-projects.vercel.app"
+                "https://corretora-jennisson-git-main-jenissoncorretoras-projects.vercel.app",
+                "https://corretora-jennisson-ey8cjzoxl-jenissoncorretoras-projects.vercel.app"
               )
               .AllowAnyHeader()
               .AllowAnyMethod()
