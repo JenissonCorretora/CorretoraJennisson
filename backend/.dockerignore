@@ -1,0 +1,16 @@
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm
+**/bin
+**/obj
+**/node_modules
+**/wwwroot/uploads
+**/.dockerignore
+**/README.md
+**/.env
+**/.env.local
+

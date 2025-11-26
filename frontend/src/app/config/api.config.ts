@@ -1,8 +1,48 @@
 /**
  * Configuração da API
+ * Detecta automaticamente se está em produção ou desenvolvimento
  */
+function getApiBaseUrl(): string {
+  const hostname = window.location.hostname.toLowerCase();
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost');
+  
+  // Se não for localhost, está em produção
+  const isProduction = !isLocalhost;
+  
+  const productionUrl = 'https://corretorajennisson-backend.onrender.com/api';
+  const developmentUrl = 'http://localhost:5166/api';
+  
+  const url = isProduction ? productionUrl : developmentUrl;
+  
+  // Log para debug
+  console.log('[API Config] Hostname:', hostname);
+  console.log('[API Config] Is Production:', isProduction);
+  console.log('[API Config] API Base URL:', url);
+  
+  return url;
+}
+
+function getChatHubUrl(): string {
+  const hostname = window.location.hostname.toLowerCase();
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost');
+  
+  const isProduction = !isLocalhost;
+  
+  const productionUrl = 'https://corretorajennisson-backend.onrender.com/chathub';
+  const developmentUrl = 'http://localhost:5166/chathub';
+  
+  const url = isProduction ? productionUrl : developmentUrl;
+  
+  console.log('[API Config] Chat Hub URL:', url);
+  
+  return url;
+}
+
+const API_BASE_URL = getApiBaseUrl();
+const CHAT_HUB_URL = getChatHubUrl();
+
 export const API_CONFIG = {
-  baseUrl: 'http://localhost:5166/api',
+  baseUrl: API_BASE_URL,
   endpoints: {
     auth: {
       loginAdmin: '/auth/login-administrador',
@@ -19,7 +59,7 @@ export const API_CONFIG = {
     administradores: '/administrador',
     conteudoSite: '/conteudosite',
     mensagens: '/mensagem',
-    chatHub: 'http://localhost:5166/chathub'
+    chatHub: CHAT_HUB_URL
   }
 };
 
