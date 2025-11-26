@@ -124,6 +124,24 @@ builder.Services.AddSignalR();
 
 var app = builder.Build();
 
+// Rodar migrations automaticamente na inicialização
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<CorretoraJenissonLuckwuDb>();
+        Console.WriteLine("[Migrations] Aplicando migrations pendentes...");
+        context.Database.Migrate();
+        Console.WriteLine("[Migrations] Migrations aplicadas com sucesso!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Migrations] ERRO ao aplicar migrations: {ex.Message}");
+        // Não interrompe a aplicação, apenas loga o erro
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
